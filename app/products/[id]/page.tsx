@@ -56,11 +56,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       </Link>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-        <img
-          src={product.photo_url}
-          alt={product.name}
-          className="w-full rounded-lg border border-gray-200 object-cover"
-        />
+        <div className="aspect-[3/4] w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
+          <img src={product.photo_url} alt={product.name} className="h-full w-full object-contain" />
+        </div>
 
         <div className="flex flex-col gap-3">
           <div className="flex items-start justify-between gap-2">

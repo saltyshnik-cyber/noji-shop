@@ -44,7 +44,9 @@ function ProductCard({ p }: { p: ProductRow }) {
   return (
     <div className="flex flex-col overflow-hidden rounded-lg border border-gray-200 shadow-sm transition hover:shadow-md">
       <Link href={`/products/${p.id}`} className="flex flex-1 flex-col">
-        <img src={p.photo_url} alt={p.name} className="h-48 w-full object-cover" />
+        <div className="aspect-[3/4] w-full bg-gray-100">
+          <img src={p.photo_url} alt={p.name} className="h-full w-full object-contain" />
+        </div>
         <div className="flex flex-1 flex-col gap-2 p-4">
           <div className="flex items-start justify-between gap-2">
             <h3 className="text-lg font-semibold">{p.name}</h3>
