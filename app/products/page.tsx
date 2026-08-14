@@ -49,15 +49,15 @@ function ProductCard({ p }: { p: ProductRow }) {
         </div>
         <div className="flex flex-1 flex-col gap-2 p-4">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-lg font-semibold text-white">{p.name}</h3>
+            <h3 className="line-clamp-2 min-h-[3.5rem] text-lg font-semibold text-white">{p.name}</h3>
             {!p.in_stock && (
               <span className="whitespace-nowrap rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
                 Нет в наличии
               </span>
             )}
           </div>
-          <p className="text-sm text-gray-300">{p.description}</p>
-          <dl className="mt-1 space-y-1 text-xs text-gray-400">
+          <p className="line-clamp-2 min-h-[2.5rem] text-sm text-gray-300">{p.description}</p>
+          <dl className="mt-1 min-h-[3.75rem] space-y-1 overflow-hidden text-xs text-gray-400">
             {p.steel && (
               <div>
                 <dt className="inline font-medium">Сталь: </dt>
@@ -115,7 +115,7 @@ export default async function ProductsPage() {
   return (
     <>
       <CategoryNav />
-      <main className="mx-auto max-w-6xl px-4 py-10">
+      <main className="mx-auto min-w-0 max-w-6xl px-4 py-10">
         <h1 className="mb-8 text-3xl font-bold">Каталог ножей</h1>
 
         {products.length === 0 ? (
@@ -127,9 +127,9 @@ export default async function ProductsPage() {
               if (!items?.length) return null;
 
               return (
-                <section key={slug} id={slug} className="scroll-mt-[120px]">
+                <section key={slug} id={slug} className="min-w-0 scroll-mt-[120px]">
                   <h2 className="mb-4 text-2xl font-bold">{name}</h2>
-                  <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3">
+                  <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-2 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:pb-0 lg:grid-cols-3">
                     {items.map((p) => (
                       <div key={p.id} className="w-64 shrink-0 snap-start sm:w-auto">
                         <ProductCard p={p} />
