@@ -3,29 +3,40 @@
 import { useEffect, useState } from "react";
 import { CATEGORY_SECTIONS } from "@/lib/categoryNav";
 
+const STICKY_OFFSET = 130;
+
 export function CategoryNav() {
-  const [active, setActive] = useState<string | null>(null);
+  const [active, setActive] = useState<string>(CATEGORY_SECTIONS[0].slug);
 
   useEffect(() => {
-    const elements = CATEGORY_SECTIONS.map((c) => document.getElementById(c.slug)).filter(
-      (el): el is HTMLElement => el !== null,
-    );
+    const sections = CATEGORY_SECTIONS.map((c) => ({ slug: c.slug, el: document.getElementById(c.slug) })).filter(
+      (s) => s.el !== null,
+    ) as { slug: string; el: HTMLElement }[];
 
-    if (elements.length === 0) return;
+    if (sections.length === 0) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActive(entry.target.id);
-          }
+    let ticking = false;
+
+    function updateActive() {
+      ticking = false;
+      let current = sections[0].slug;
+      for (const s of sections) {
+        if (s.el.getBoundingClientRect().top <= STICKY_OFFSET) {
+          current = s.slug;
         }
-      },
-      { rootMargin: "-120px 0px -70% 0px", threshold: 0 },
-    );
+      }
+      setActive(current);
+    }
 
-    elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(updateActive);
+    }
+
+    updateActive();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
