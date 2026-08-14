@@ -135,7 +135,7 @@ export default async function ProductsPage() {
                     <div
                       data-debug-row="carousel"
                       data-debug-name={name}
-                      className="flex flex-nowrap touch-pan-x snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-2 sm:grid sm:touch-auto sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:pb-0 lg:grid-cols-3"
+                      className="flex flex-nowrap snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-2 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:pb-0 lg:grid-cols-3"
                     >
                       {items.map((p) => (
                         <div key={p.id} className="w-64 shrink-0 snap-start sm:w-auto">
