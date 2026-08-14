@@ -31,9 +31,9 @@ export default function CartPage() {
         <div className="flex flex-col divide-y divide-gray-200 border-y border-gray-200">
           {items.map((item) => (
             <div key={item.productId} className="flex items-center gap-4 py-4">
-              <img src={item.photoUrl} alt={item.name} className="h-20 w-20 rounded object-cover" />
-              <div className="flex-1">
-                <p className="font-medium">{item.name}</p>
+              <img src={item.photoUrl} alt={item.name} className="h-20 w-20 shrink-0 rounded object-cover" />
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium">{item.name}</p>
                 <p className="text-sm text-gray-500">{item.price.toLocaleString("ru-RU")} ₽</p>
               </div>
               <QuantityStepper
