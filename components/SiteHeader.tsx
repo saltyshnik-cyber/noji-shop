@@ -7,8 +7,8 @@ export function SiteHeader() {
   const { totalCount } = useCart();
 
   return (
-    <header className="border-b border-gray-200">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+    <header className="sticky top-0 z-50 h-16 border-b border-gray-200 bg-white">
+      <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-4">
         <Link href="/products" className="text-lg font-bold">
           Knife Shop
         </Link>

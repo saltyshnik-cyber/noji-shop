@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ensureSchema, sql } from "@/lib/db";
 import { AddToCartButton } from "@/components/AddToCartButton";
+import { CategoryNav } from "@/components/CategoryNav";
+import { CATEGORY_SECTIONS } from "@/lib/categoryNav";
 
 export const dynamic = "force-dynamic";
 
@@ -38,76 +40,104 @@ async function getProducts(): Promise<ProductRow[]> {
   return rows as ProductRow[];
 }
 
+function ProductCard({ p }: { p: ProductRow }) {
+  return (
+    <div className="flex flex-col overflow-hidden rounded-lg border border-gray-200 shadow-sm transition hover:shadow-md">
+      <Link href={`/products/${p.id}`} className="flex flex-1 flex-col">
+        <img src={p.photo_url} alt={p.name} className="h-48 w-full object-cover" />
+        <div className="flex flex-1 flex-col gap-2 p-4">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-lg font-semibold">{p.name}</h3>
+            {!p.in_stock && (
+              <span className="whitespace-nowrap rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+                Нет в наличии
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-gray-600">{p.description}</p>
+          <dl className="mt-1 space-y-1 text-xs text-gray-500">
+            {p.steel && (
+              <div>
+                <dt className="inline font-medium">Сталь: </dt>
+                <dd className="inline">{p.steel}</dd>
+              </div>
+            )}
+            {p.blade_length_mm != null && (
+              <div>
+                <dt className="inline font-medium">Длина клинка: </dt>
+                <dd className="inline">{p.blade_length_mm} мм</dd>
+              </div>
+            )}
+            {p.handle_material && (
+              <div>
+                <dt className="inline font-medium">Рукоять: </dt>
+                <dd className="inline">{p.handle_material}</dd>
+              </div>
+            )}
+          </dl>
+          <p className="mt-auto pt-2 text-xl font-bold">{Number(p.price).toLocaleString("ru-RU")} ₽</p>
+        </div>
+      </Link>
+      <div className="px-4 pb-4">
+        <AddToCartButton
+          productId={p.id}
+          name={p.name}
+          price={Number(p.price)}
+          photoUrl={p.photo_url}
+          inStock={p.in_stock}
+          compact
+        />
+      </div>
+    </div>
+  );
+}
+
 export default async function ProductsPage() {
   const products = await getProducts();
 
-  return (
-    <main className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="mb-8 text-3xl font-bold">Каталог ножей</h1>
+  const byCategory = new Map<string, ProductRow[]>();
+  for (const p of products) {
+    const key = p.category_name ?? "Без категории";
+    const list = byCategory.get(key) ?? [];
+    list.push(p);
+    byCategory.set(key, list);
+  }
 
-      {products.length === 0 ? (
-        <p className="text-gray-500">Товары не найдены. Запустите seed-скрипт.</p>
-      ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((p) => (
-            <div
-              key={p.id}
-              className="flex flex-col overflow-hidden rounded-lg border border-gray-200 shadow-sm transition hover:shadow-md"
-            >
-              <Link href={`/products/${p.id}`} className="flex flex-1 flex-col">
-                <img src={p.photo_url} alt={p.name} className="h-48 w-full object-cover" />
-                <div className="flex flex-1 flex-col gap-2 p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <h2 className="text-lg font-semibold">{p.name}</h2>
-                    {!p.in_stock && (
-                      <span className="whitespace-nowrap rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
-                        Нет в наличии
-                      </span>
-                    )}
+  const knownNames = new Set<string>(CATEGORY_SECTIONS.map((c) => c.name));
+  const extraSections = [...byCategory.keys()]
+    .filter((name) => !knownNames.has(name))
+    .map((name) => ({ name, slug: name.toLowerCase().replace(/\s+/g, "-") }));
+
+  const sections = [...CATEGORY_SECTIONS, ...extraSections];
+
+  return (
+    <>
+      <CategoryNav />
+      <main className="mx-auto max-w-6xl px-4 py-10">
+        <h1 className="mb-8 text-3xl font-bold">Каталог ножей</h1>
+
+        {products.length === 0 ? (
+          <p className="text-gray-500">Товары не найдены. Запустите seed-скрипт.</p>
+        ) : (
+          <div className="flex flex-col gap-12">
+            {sections.map(({ name, slug }) => {
+              const items = byCategory.get(name);
+              if (!items?.length) return null;
+
+              return (
+                <section key={slug} id={slug} className="scroll-mt-[120px]">
+                  <h2 className="mb-4 text-2xl font-bold">{name}</h2>
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {items.map((p) => (
+                      <ProductCard key={p.id} p={p} />
+                    ))}
                   </div>
-                  {p.category_name && (
-                    <span className="w-fit rounded bg-amber-100 px-2 py-0.5 text-xs text-amber-800">
-                      {p.category_name}
-                    </span>
-                  )}
-                  <p className="text-sm text-gray-600">{p.description}</p>
-                  <dl className="mt-1 space-y-1 text-xs text-gray-500">
-                    {p.steel && (
-                      <div>
-                        <dt className="inline font-medium">Сталь: </dt>
-                        <dd className="inline">{p.steel}</dd>
-                      </div>
-                    )}
-                    {p.blade_length_mm != null && (
-                      <div>
-                        <dt className="inline font-medium">Длина клинка: </dt>
-                        <dd className="inline">{p.blade_length_mm} мм</dd>
-                      </div>
-                    )}
-                    {p.handle_material && (
-                      <div>
-                        <dt className="inline font-medium">Рукоять: </dt>
-                        <dd className="inline">{p.handle_material}</dd>
-                      </div>
-                    )}
-                  </dl>
-                  <p className="mt-auto pt-2 text-xl font-bold">{Number(p.price).toLocaleString("ru-RU")} ₽</p>
-                </div>
-              </Link>
-              <div className="px-4 pb-4">
-                <AddToCartButton
-                  productId={p.id}
-                  name={p.name}
-                  price={Number(p.price)}
-                  photoUrl={p.photo_url}
-                  inStock={p.in_stock}
-                  compact
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </main>
+                </section>
+              );
+            })}
+          </div>
+        )}
+      </main>
+    </>
   );
 }
