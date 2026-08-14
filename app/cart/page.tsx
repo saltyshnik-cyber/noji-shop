@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
+import { QuantityStepper } from "@/components/QuantityStepper";
 
 export default function CartPage() {
   const { items, removeItem, setQuantity, totalPrice } = useCart();
@@ -32,12 +33,10 @@ export default function CartPage() {
               <p className="font-medium">{item.name}</p>
               <p className="text-sm text-gray-500">{item.price.toLocaleString("ru-RU")} ₽</p>
             </div>
-            <input
-              type="number"
-              min={1}
-              value={item.quantity}
-              onChange={(e) => setQuantity(item.productId, Number(e.target.value))}
-              className="w-16 rounded border border-gray-300 px-2 py-1 text-center"
+            <QuantityStepper
+              quantity={item.quantity}
+              onDecrement={() => setQuantity(item.productId, item.quantity - 1)}
+              onIncrement={() => setQuantity(item.productId, item.quantity + 1)}
             />
             <p className="w-24 text-right font-semibold">
               {(item.price * item.quantity).toLocaleString("ru-RU")} ₽

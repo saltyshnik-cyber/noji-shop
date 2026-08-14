@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useCart } from "@/lib/cart-context";
+import { QuantityStepper } from "@/components/QuantityStepper";
 
 export function AddToCartButton({
   productId,
@@ -18,9 +18,8 @@ export function AddToCartButton({
   inStock: boolean;
   compact?: boolean;
 }) {
-  const { addItem } = useCart();
-  const [quantity, setQuantity] = useState(1);
-  const [added, setAdded] = useState(false);
+  const { items, addItem, setQuantity } = useCart();
+  const quantity = items.find((i) => i.productId === productId)?.quantity ?? 0;
 
   if (!inStock) {
     return (
@@ -34,52 +33,38 @@ export function AddToCartButton({
     );
   }
 
-  function changeQuantity(e: React.MouseEvent, delta: number) {
-    e.preventDefault();
-    e.stopPropagation();
-    setQuantity((q) => Math.max(1, q + delta));
-  }
-
-  function handleAdd(e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    addItem({ productId, name, price, photoUrl }, quantity);
-    setAdded(true);
-    setQuantity(1);
-    setTimeout(() => setAdded(false), 1500);
-  }
-
-  return (
-    <div className={`mt-2 flex items-center ${compact ? "gap-1.5" : "gap-2"}`}>
-      <div className="flex items-center rounded border border-gray-300">
-        <button
-          type="button"
-          onClick={(e) => changeQuantity(e, -1)}
-          className={`${compact ? "px-2 py-1 text-sm" : "px-3 py-2"} text-gray-600 hover:bg-gray-100`}
-          aria-label="Уменьшить количество"
-        >
-          −
-        </button>
-        <span className={`${compact ? "min-w-6 px-1 text-sm" : "min-w-8 px-2"} text-center`}>{quantity}</span>
-        <button
-          type="button"
-          onClick={(e) => changeQuantity(e, 1)}
-          className={`${compact ? "px-2 py-1 text-sm" : "px-3 py-2"} text-gray-600 hover:bg-gray-100`}
-          aria-label="Увеличить количество"
-        >
-          +
-        </button>
-      </div>
-
+  if (quantity === 0) {
+    return (
       <button
         type="button"
-        onClick={handleAdd}
-        className={`rounded bg-amber-800 font-medium text-white transition hover:bg-amber-900 ${
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          addItem({ productId, name, price, photoUrl }, 1);
+        }}
+        className={`mt-2 w-fit rounded bg-amber-800 font-medium text-white transition hover:bg-amber-900 ${
           compact ? "px-4 py-1.5 text-sm" : "px-6 py-2"
         }`}
       >
-        {added ? "Добавлено ✓" : "В корзину"}
+        В корзину
       </button>
+    );
+  }
+
+  return (
+    <div
+      className="mt-2 w-fit"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    >
+      <QuantityStepper
+        quantity={quantity}
+        onDecrement={() => setQuantity(productId, quantity - 1)}
+        onIncrement={() => setQuantity(productId, quantity + 1)}
+        compact={compact}
+      />
     </div>
   );
 }
