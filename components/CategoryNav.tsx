@@ -49,10 +49,7 @@ export function CategoryNav() {
 
   return (
     <nav className="sticky top-16 z-40 h-14 min-w-0 border-b border-neutral-800 bg-neutral-950">
-      <div
-        data-debug-row="category-nav"
-        className="mx-auto flex h-full max-w-6xl items-center gap-2 overflow-x-auto px-4"
-      >
+      <div className="mx-auto flex h-full max-w-6xl items-center gap-2 overflow-x-auto px-4">
         {CATEGORY_SECTIONS.map((c) => {
           const isActive = active === c.slug;
           return (
