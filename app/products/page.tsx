@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ensureSchema, sql } from "@/lib/db";
+import { AddToCartButton } from "@/components/AddToCartButton";
 
 export const dynamic = "force-dynamic";
 
@@ -49,50 +50,61 @@ export default async function ProductsPage() {
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((p) => (
-            <Link
+            <div
               key={p.id}
-              href={`/products/${p.id}`}
               className="flex flex-col overflow-hidden rounded-lg border border-gray-200 shadow-sm transition hover:shadow-md"
             >
-              <img src={p.photo_url} alt={p.name} className="h-48 w-full object-cover" />
-              <div className="flex flex-1 flex-col gap-2 p-4">
-                <div className="flex items-start justify-between gap-2">
-                  <h2 className="text-lg font-semibold">{p.name}</h2>
-                  {!p.in_stock && (
-                    <span className="whitespace-nowrap rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
-                      Нет в наличии
+              <Link href={`/products/${p.id}`} className="flex flex-1 flex-col">
+                <img src={p.photo_url} alt={p.name} className="h-48 w-full object-cover" />
+                <div className="flex flex-1 flex-col gap-2 p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <h2 className="text-lg font-semibold">{p.name}</h2>
+                    {!p.in_stock && (
+                      <span className="whitespace-nowrap rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+                        Нет в наличии
+                      </span>
+                    )}
+                  </div>
+                  {p.category_name && (
+                    <span className="w-fit rounded bg-amber-100 px-2 py-0.5 text-xs text-amber-800">
+                      {p.category_name}
                     </span>
                   )}
+                  <p className="text-sm text-gray-600">{p.description}</p>
+                  <dl className="mt-1 space-y-1 text-xs text-gray-500">
+                    {p.steel && (
+                      <div>
+                        <dt className="inline font-medium">Сталь: </dt>
+                        <dd className="inline">{p.steel}</dd>
+                      </div>
+                    )}
+                    {p.blade_length_mm != null && (
+                      <div>
+                        <dt className="inline font-medium">Длина клинка: </dt>
+                        <dd className="inline">{p.blade_length_mm} мм</dd>
+                      </div>
+                    )}
+                    {p.handle_material && (
+                      <div>
+                        <dt className="inline font-medium">Рукоять: </dt>
+                        <dd className="inline">{p.handle_material}</dd>
+                      </div>
+                    )}
+                  </dl>
+                  <p className="mt-auto pt-2 text-xl font-bold">{Number(p.price).toLocaleString("ru-RU")} ₽</p>
                 </div>
-                {p.category_name && (
-                  <span className="w-fit rounded bg-amber-100 px-2 py-0.5 text-xs text-amber-800">
-                    {p.category_name}
-                  </span>
-                )}
-                <p className="text-sm text-gray-600">{p.description}</p>
-                <dl className="mt-1 space-y-1 text-xs text-gray-500">
-                  {p.steel && (
-                    <div>
-                      <dt className="inline font-medium">Сталь: </dt>
-                      <dd className="inline">{p.steel}</dd>
-                    </div>
-                  )}
-                  {p.blade_length_mm != null && (
-                    <div>
-                      <dt className="inline font-medium">Длина клинка: </dt>
-                      <dd className="inline">{p.blade_length_mm} мм</dd>
-                    </div>
-                  )}
-                  {p.handle_material && (
-                    <div>
-                      <dt className="inline font-medium">Рукоять: </dt>
-                      <dd className="inline">{p.handle_material}</dd>
-                    </div>
-                  )}
-                </dl>
-                <p className="mt-auto pt-2 text-xl font-bold">{Number(p.price).toLocaleString("ru-RU")} ₽</p>
+              </Link>
+              <div className="px-4 pb-4">
+                <AddToCartButton
+                  productId={p.id}
+                  name={p.name}
+                  price={Number(p.price)}
+                  photoUrl={p.photo_url}
+                  inStock={p.in_stock}
+                  compact
+                />
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}
