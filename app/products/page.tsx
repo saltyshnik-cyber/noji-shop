@@ -3,6 +3,7 @@ import { ensureSchema, sql } from "@/lib/db";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { CategoryNav } from "@/components/CategoryNav";
 import { CATEGORY_SECTIONS } from "@/lib/categoryNav";
+import { DebugOverlay } from "@/components/DebugOverlay";
 
 export const dynamic = "force-dynamic";
 
@@ -114,6 +115,7 @@ export default async function ProductsPage() {
 
   return (
     <>
+      <DebugOverlay />
       <CategoryNav />
       <main className="mx-auto min-w-0 max-w-6xl px-4 py-10">
         <h1 className="mb-8 text-3xl font-bold">Каталог ножей</h1>
@@ -129,7 +131,11 @@ export default async function ProductsPage() {
               return (
                 <section key={slug} id={slug} className="min-w-0 scroll-mt-[120px]">
                   <h2 className="mb-4 text-2xl font-bold">{name}</h2>
-                  <div className="flex flex-nowrap touch-pan-x snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-2 sm:grid sm:touch-auto sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:pb-0 lg:grid-cols-3">
+                  <div
+                    data-debug-row="carousel"
+                    data-debug-name={name}
+                    className="flex flex-nowrap touch-pan-x snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-2 sm:grid sm:touch-auto sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:pb-0 lg:grid-cols-3"
+                  >
                     {items.map((p) => (
                       <div key={p.id} className="w-64 shrink-0 snap-start sm:w-auto">
                         <ProductCard p={p} />
