@@ -49,45 +49,47 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const { order, items } = data;
 
   return (
-    <main className="mx-auto max-w-xl px-4 py-10">
-      <h1 className="mb-2 text-2xl font-bold">Заказ №{order.id} принят</h1>
-      <p className="mb-6 text-gray-500">Статус: {order.status}</p>
+    <main className="min-w-0">
+      <div className="mx-auto max-w-xl px-4 py-10">
+        <h1 className="mb-2 text-2xl font-bold">Заказ №{order.id} принят</h1>
+        <p className="mb-6 text-gray-500">Статус: {order.status}</p>
 
-      <div className="mb-6 rounded border border-gray-200 p-4">
-        {items.map((item, i) => (
-          <div key={i} className="flex justify-between py-1 text-sm">
-            <span>
-              {item.product_name} × {item.quantity}
-            </span>
-            <span>{(Number(item.price) * item.quantity).toLocaleString("ru-RU")} ₽</span>
+        <div className="mb-6 rounded border border-gray-200 p-4">
+          {items.map((item, i) => (
+            <div key={i} className="flex justify-between py-1 text-sm">
+              <span>
+                {item.product_name} × {item.quantity}
+              </span>
+              <span>{(Number(item.price) * item.quantity).toLocaleString("ru-RU")} ₽</span>
+            </div>
+          ))}
+          <div className="mt-2 flex justify-between border-t border-gray-200 pt-2 font-bold">
+            <span>Итого</span>
+            <span>{Number(order.total).toLocaleString("ru-RU")} ₽</span>
           </div>
-        ))}
-        <div className="mt-2 flex justify-between border-t border-gray-200 pt-2 font-bold">
-          <span>Итого</span>
-          <span>{Number(order.total).toLocaleString("ru-RU")} ₽</span>
         </div>
-      </div>
 
-      <dl className="mb-6 space-y-1 text-sm text-gray-600">
-        <div>
-          <dt className="inline font-medium">Имя: </dt>
-          <dd className="inline">{order.customer_name}</dd>
-        </div>
-        <div>
-          <dt className="inline font-medium">Телефон: </dt>
-          <dd className="inline">{order.phone}</dd>
-        </div>
-        {order.email && (
+        <dl className="mb-6 space-y-1 text-sm text-gray-600">
           <div>
-            <dt className="inline font-medium">Email: </dt>
-            <dd className="inline">{order.email}</dd>
+            <dt className="inline font-medium">Имя: </dt>
+            <dd className="inline">{order.customer_name}</dd>
           </div>
-        )}
-      </dl>
+          <div>
+            <dt className="inline font-medium">Телефон: </dt>
+            <dd className="inline">{order.phone}</dd>
+          </div>
+          {order.email && (
+            <div>
+              <dt className="inline font-medium">Email: </dt>
+              <dd className="inline">{order.email}</dd>
+            </div>
+          )}
+        </dl>
 
-      <Link href="/products" className="text-amber-800 hover:underline">
-        ← Продолжить покупки
-      </Link>
+        <Link href="/products" className="text-amber-800 hover:underline">
+          ← Продолжить покупки
+        </Link>
+      </div>
     </main>
   );
 }

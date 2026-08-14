@@ -117,36 +117,38 @@ export default async function ProductsPage() {
     <>
       <DebugOverlay />
       <CategoryNav />
-      <main className="mx-auto min-w-0 max-w-6xl px-4 py-10">
-        <h1 className="mb-8 text-3xl font-bold">Каталог ножей</h1>
+      <main className="min-w-0">
+        <div className="mx-auto max-w-6xl px-4 py-10">
+          <h1 className="mb-8 text-3xl font-bold">Каталог ножей</h1>
 
-        {products.length === 0 ? (
-          <p className="text-gray-500">Товары не найдены. Запустите seed-скрипт.</p>
-        ) : (
-          <div className="flex flex-col gap-12">
-            {sections.map(({ name, slug }) => {
-              const items = byCategory.get(name);
-              if (!items?.length) return null;
+          {products.length === 0 ? (
+            <p className="text-gray-500">Товары не найдены. Запустите seed-скрипт.</p>
+          ) : (
+            <div className="flex flex-col gap-12">
+              {sections.map(({ name, slug }) => {
+                const items = byCategory.get(name);
+                if (!items?.length) return null;
 
-              return (
-                <section key={slug} id={slug} className="min-w-0 scroll-mt-[120px]">
-                  <h2 className="mb-4 text-2xl font-bold">{name}</h2>
-                  <div
-                    data-debug-row="carousel"
-                    data-debug-name={name}
-                    className="flex flex-nowrap touch-pan-x snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-2 sm:grid sm:touch-auto sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:pb-0 lg:grid-cols-3"
-                  >
-                    {items.map((p) => (
-                      <div key={p.id} className="w-64 shrink-0 snap-start sm:w-auto">
-                        <ProductCard p={p} />
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              );
-            })}
-          </div>
-        )}
+                return (
+                  <section key={slug} id={slug} className="min-w-0 scroll-mt-[120px]">
+                    <h2 className="mb-4 text-2xl font-bold">{name}</h2>
+                    <div
+                      data-debug-row="carousel"
+                      data-debug-name={name}
+                      className="flex flex-nowrap touch-pan-x snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-2 sm:grid sm:touch-auto sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:pb-0 lg:grid-cols-3"
+                    >
+                      {items.map((p) => (
+                        <div key={p.id} className="w-64 shrink-0 snap-start sm:w-auto">
+                          <ProductCard p={p} />
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </main>
     </>
   );
