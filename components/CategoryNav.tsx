@@ -19,6 +19,14 @@ export function CategoryNav() {
 
     function updateActive() {
       ticking = false;
+
+      const atBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+      if (atBottom) {
+        setActive(sections[sections.length - 1].slug);
+        return;
+      }
+
       let current = sections[0].slug;
       for (const s of sections) {
         if (s.el.getBoundingClientRect().top <= STICKY_OFFSET) {
