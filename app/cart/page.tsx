@@ -30,27 +30,31 @@ export default function CartPage() {
 
         <div className="flex flex-col divide-y divide-gray-200 border-y border-gray-200">
           {items.map((item) => (
-            <div key={item.productId} className="flex items-center gap-4 py-4">
-              <img src={item.photoUrl} alt={item.name} className="h-20 w-20 shrink-0 rounded object-cover" />
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium">{item.name}</p>
-                <p className="text-sm text-gray-500">{item.price.toLocaleString("ru-RU")} ₽</p>
+            <div key={item.productId} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:gap-4">
+              <div className="flex items-center gap-4">
+                <img src={item.photoUrl} alt={item.name} className="h-20 w-20 shrink-0 rounded object-cover" />
+                <div className="min-w-0">
+                  <p className="truncate font-medium">{item.name}</p>
+                  <p className="text-sm text-gray-500">{item.price.toLocaleString("ru-RU")} ₽</p>
+                </div>
               </div>
-              <QuantityStepper
-                quantity={item.quantity}
-                onDecrement={() => setQuantity(item.productId, item.quantity - 1)}
-                onIncrement={() => setQuantity(item.productId, item.quantity + 1)}
-              />
-              <p className="w-24 text-right font-semibold">
-                {(item.price * item.quantity).toLocaleString("ru-RU")} ₽
-              </p>
-              <button
-                type="button"
-                onClick={() => removeItem(item.productId)}
-                className="text-sm text-gray-400 hover:text-red-600"
-              >
-                Удалить
-              </button>
+              <div className="flex items-center justify-between gap-4 sm:ml-auto">
+                <QuantityStepper
+                  quantity={item.quantity}
+                  onDecrement={() => setQuantity(item.productId, item.quantity - 1)}
+                  onIncrement={() => setQuantity(item.productId, item.quantity + 1)}
+                />
+                <p className="text-right font-semibold sm:w-24">
+                  {(item.price * item.quantity).toLocaleString("ru-RU")} ₽
+                </p>
+                <button
+                  type="button"
+                  onClick={() => removeItem(item.productId)}
+                  className="text-sm text-gray-400 hover:text-red-600"
+                >
+                  Удалить
+                </button>
+              </div>
             </div>
           ))}
         </div>
