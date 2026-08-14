@@ -42,22 +42,22 @@ async function getProducts(): Promise<ProductRow[]> {
 
 function ProductCard({ p }: { p: ProductRow }) {
   return (
-    <div className="flex flex-col overflow-hidden rounded-lg border border-gray-200 shadow-sm transition hover:shadow-md">
+    <div className="flex flex-col overflow-hidden rounded-lg bg-neutral-900 transition hover:brightness-110">
       <Link href={`/products/${p.id}`} className="flex flex-1 flex-col">
         <div className="aspect-[4/5] w-full">
           <img src={p.photo_url} alt={p.name} className="h-full w-full object-cover object-center" />
         </div>
         <div className="flex flex-1 flex-col gap-2 p-4">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-lg font-semibold">{p.name}</h3>
+            <h3 className="text-lg font-semibold text-white">{p.name}</h3>
             {!p.in_stock && (
               <span className="whitespace-nowrap rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
                 Нет в наличии
               </span>
             )}
           </div>
-          <p className="text-sm text-gray-600">{p.description}</p>
-          <dl className="mt-1 space-y-1 text-xs text-gray-500">
+          <p className="text-sm text-gray-300">{p.description}</p>
+          <dl className="mt-1 space-y-1 text-xs text-gray-400">
             {p.steel && (
               <div>
                 <dt className="inline font-medium">Сталь: </dt>
@@ -77,7 +77,7 @@ function ProductCard({ p }: { p: ProductRow }) {
               </div>
             )}
           </dl>
-          <p className="mt-auto pt-2 text-xl font-bold">{Number(p.price).toLocaleString("ru-RU")} ₽</p>
+          <p className="mt-auto pt-2 text-xl font-bold text-white">{Number(p.price).toLocaleString("ru-RU")} ₽</p>
         </div>
       </Link>
       <div className="px-4 pb-4">
