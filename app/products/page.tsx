@@ -71,18 +71,24 @@ export default async function ProductsPage() {
                 )}
                 <p className="text-sm text-gray-600">{p.description}</p>
                 <dl className="mt-1 space-y-1 text-xs text-gray-500">
-                  <div>
-                    <dt className="inline font-medium">Сталь: </dt>
-                    <dd className="inline">{p.steel}</dd>
-                  </div>
-                  <div>
-                    <dt className="inline font-medium">Длина клинка: </dt>
-                    <dd className="inline">{p.blade_length_mm} мм</dd>
-                  </div>
-                  <div>
-                    <dt className="inline font-medium">Рукоять: </dt>
-                    <dd className="inline">{p.handle_material}</dd>
-                  </div>
+                  {p.steel && (
+                    <div>
+                      <dt className="inline font-medium">Сталь: </dt>
+                      <dd className="inline">{p.steel}</dd>
+                    </div>
+                  )}
+                  {p.blade_length_mm != null && (
+                    <div>
+                      <dt className="inline font-medium">Длина клинка: </dt>
+                      <dd className="inline">{p.blade_length_mm} мм</dd>
+                    </div>
+                  )}
+                  {p.handle_material && (
+                    <div>
+                      <dt className="inline font-medium">Рукоять: </dt>
+                      <dd className="inline">{p.handle_material}</dd>
+                    </div>
+                  )}
                 </dl>
                 <p className="mt-auto pt-2 text-xl font-bold">{Number(p.price).toLocaleString("ru-RU")} ₽</p>
               </div>

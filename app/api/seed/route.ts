@@ -22,12 +22,11 @@ export async function POST(request: Request) {
   }
 
   for (const p of products) {
-    const photoUrl = `https://placehold.co/400x300?text=${encodeURIComponent(p.name)}`;
     await sql`
       INSERT INTO products
         (name, description, price, photo_url, category_id, steel, blade_length_mm, handle_material, in_stock)
       VALUES
-        (${p.name}, ${p.description}, ${p.price}, ${photoUrl}, ${categoryIds[p.category]}, ${p.steel}, ${p.blade_length_mm}, ${p.handle_material}, ${p.in_stock})
+        (${p.name}, ${p.description}, ${p.price}, ${p.photo}, ${categoryIds[p.category]}, ${p.steel}, ${p.blade_length_mm}, ${p.handle_material}, ${p.in_stock})
     `;
   }
 

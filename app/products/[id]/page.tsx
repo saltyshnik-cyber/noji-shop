@@ -81,18 +81,24 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           <p className="text-gray-600">{product.description}</p>
 
           <dl className="mt-2 space-y-1 text-sm text-gray-600">
-            <div>
-              <dt className="inline font-medium">Сталь: </dt>
-              <dd className="inline">{product.steel}</dd>
-            </div>
-            <div>
-              <dt className="inline font-medium">Длина клинка: </dt>
-              <dd className="inline">{product.blade_length_mm} мм</dd>
-            </div>
-            <div>
-              <dt className="inline font-medium">Материал рукояти: </dt>
-              <dd className="inline">{product.handle_material}</dd>
-            </div>
+            {product.steel && (
+              <div>
+                <dt className="inline font-medium">Сталь: </dt>
+                <dd className="inline">{product.steel}</dd>
+              </div>
+            )}
+            {product.blade_length_mm != null && (
+              <div>
+                <dt className="inline font-medium">Длина клинка: </dt>
+                <dd className="inline">{product.blade_length_mm} мм</dd>
+              </div>
+            )}
+            {product.handle_material && (
+              <div>
+                <dt className="inline font-medium">Материал рукояти: </dt>
+                <dd className="inline">{product.handle_material}</dd>
+              </div>
+            )}
           </dl>
 
           <p className="mt-4 text-3xl font-bold">{Number(product.price).toLocaleString("ru-RU")} ₽</p>
