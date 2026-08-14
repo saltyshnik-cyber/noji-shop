@@ -12,20 +12,22 @@ export function QuantityStepper({
   compact?: boolean;
 }) {
   return (
-    <div className="flex items-center rounded border border-gray-300">
+    <div className="flex items-center rounded border border-neutral-600">
       <button
         type="button"
         onClick={onDecrement}
-        className={`${compact ? "px-2 py-1 text-sm" : "px-3 py-2"} text-gray-600 hover:bg-gray-100`}
+        className={`${compact ? "px-2 py-1 text-sm" : "px-3 py-2"} text-gray-200 hover:bg-neutral-800`}
         aria-label="Уменьшить количество"
       >
         −
       </button>
-      <span className={`${compact ? "min-w-6 px-1 text-sm" : "min-w-8 px-2"} text-center`}>{quantity}</span>
+      <span className={`${compact ? "min-w-6 px-1 text-sm" : "min-w-8 px-2"} text-center text-white`}>
+        {quantity}
+      </span>
       <button
         type="button"
         onClick={onIncrement}
-        className={`${compact ? "px-2 py-1 text-sm" : "px-3 py-2"} text-gray-600 hover:bg-gray-100`}
+        className={`${compact ? "px-2 py-1 text-sm" : "px-3 py-2"} text-gray-200 hover:bg-neutral-800`}
         aria-label="Увеличить количество"
       >
         +

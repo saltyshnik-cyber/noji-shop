@@ -26,7 +26,7 @@ export function AddToCartButton({
       <button
         type="button"
         disabled
-        className="mt-2 w-fit cursor-not-allowed rounded bg-gray-300 px-6 py-2 font-medium text-white"
+        className="mt-2 w-fit cursor-not-allowed rounded bg-neutral-700 px-6 py-2 font-medium text-gray-300"
       >
         Нет в наличии
       </button>

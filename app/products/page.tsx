@@ -129,9 +129,11 @@ export default async function ProductsPage() {
               return (
                 <section key={slug} id={slug} className="scroll-mt-[120px]">
                   <h2 className="mb-4 text-2xl font-bold">{name}</h2>
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3">
                     {items.map((p) => (
-                      <ProductCard key={p.id} p={p} />
+                      <div key={p.id} className="w-64 shrink-0 snap-start sm:w-auto">
+                        <ProductCard p={p} />
+                      </div>
                     ))}
                   </div>
                 </section>
