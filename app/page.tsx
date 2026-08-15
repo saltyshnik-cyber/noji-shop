@@ -38,68 +38,146 @@ async function getFeaturedProducts(): Promise<FeaturedProduct[]> {
   );
 }
 
-type Review = { name: string; date: string; text: string };
+type Review = { name: string; date: string; text: string; rating: number };
 
 const REVIEWS: Review[] = [
   {
     name: "Роман",
     date: "22 июля",
     text: "Понравился дизайн, литьё оригинальное, неизбитое. Гарда тонковата на мой взгляд. В целом, хороший нож, острый.",
+    rating: 5,
   },
   {
     name: "Покупатель",
     date: "13 июля",
     text: "Нож пришёл раньше времени хорошего качества, хорошо заточенный. Большое спасибо производителю.",
+    rating: 5,
   },
   {
     name: "Роман",
     date: "7 июля",
     text: "Нож просто огонь, острый, аккуратно сделан. Продавцу большое спасибо. И мастеру особая благодарность",
+    rating: 5,
   },
   {
     name: "Олег",
     date: "19 июня",
     text: "На днях получил нож охотник ручной работы, я просто в восторге, этот нож произведение искусства, сделан очень качественно и с душой, пользоваться одно удовольствие, всем советую!",
+    rating: 5,
   },
   {
     name: "Покупатель",
     date: "23 мая",
     text: "На самом деле это суперский идеальный нож из отличной стали, годится даже для кухни. Ножны отличные. Хорош и для подарка",
+    rating: 5,
   },
   {
     name: "Александр",
     date: "24 мая",
     text: "Форма лезвия понравилась, спуски ровные.",
+    rating: 5,
   },
+];
+
+const AVERAGE_RATING = (REVIEWS.reduce((sum, r) => sum + r.rating, 0) / REVIEWS.length).toFixed(1);
+
+type HeroIconName = "star" | "shield" | "clock" | "hammer";
+
+function HeroIcon({ name }: { name: HeroIconName }) {
+  const common = { viewBox: "0 0 24 24", className: "h-6 w-6 shrink-0 text-slate-400" };
+  switch (name) {
+    case "star":
+      return (
+        <svg {...common} fill="currentColor">
+          <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.7L5.8 21l1.6-7L2 9.2l7.1-.6L12 2z" />
+        </svg>
+      );
+    case "shield":
+      return (
+        <svg {...common} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" />
+          <path d="M9 12l2 2 4-4" />
+        </svg>
+      );
+    case "clock":
+      return (
+        <svg {...common} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 7v5l3 3" />
+        </svg>
+      );
+    case "hammer":
+      return (
+        <svg {...common} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M14.5 5.5l4 4-2 2-4-4 2-2z" />
+          <path d="M12.5 7.5L4.8 15.2a2 2 0 000 2.8l1.2 1.2a2 2 0 002.8 0l7.7-7.7" />
+        </svg>
+      );
+  }
+}
+
+const HERO_FEATURES: { icon: HeroIconName; label: string; sub: string }[] = [
+  { icon: "star", label: `${AVERAGE_RATING} рейтинг`, sub: `${REVIEWS.length} отзывов` },
+  { icon: "shield", label: "Не является ХО", sub: "Сертифицировано" },
+  { icon: "clock", label: "Соблюдаем сроки", sub: "Точно в срок" },
+  { icon: "hammer", label: "Ручная ковка", sub: "Натуральные материалы" },
 ];
 
 function HeroSection() {
   return (
-    <section className="relative flex min-h-[85vh] items-end justify-center overflow-hidden border-b border-neutral-800">
+    <section className="relative flex min-h-[92vh] items-end justify-center overflow-hidden border-b border-neutral-800">
       <img src={HERO_IMAGE} alt="" className="absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/40" />
-      <div className="relative z-10 mx-auto max-w-2xl px-4 pb-16 text-center sm:pb-20">
-        <h1 className="text-4xl font-black uppercase tracking-wide text-white sm:text-6xl">Ножи для жизни</h1>
-        <p className="mt-4 text-lg text-slate-300 sm:text-xl">Кованые ножи ручной работы</p>
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link
-            href="/products"
-            className="rounded bg-red-800 px-8 py-3 text-lg font-semibold text-white transition hover:bg-red-700"
-          >
-            Перейти в каталог
-          </Link>
-          <a
-            href="#reviews"
-            className="rounded border border-slate-400 px-8 py-3 text-lg font-semibold text-slate-200 transition hover:border-white hover:text-white"
-          >
-            Отзывы
-          </a>
-          <a
-            href="#contacts"
-            className="rounded border border-slate-400 px-8 py-3 text-lg font-semibold text-slate-200 transition hover:border-white hover:text-white"
-          >
-            Контакты
-          </a>
+
+      <a
+        href="#contacts"
+        className="absolute right-4 top-4 z-10 text-xs font-medium text-slate-300 underline-offset-4 transition hover:text-white hover:underline sm:right-6 sm:top-6 sm:text-sm"
+      >
+        Контакты →
+      </a>
+
+      <div className="relative z-10 mx-auto w-full max-w-2xl px-4 pb-16 text-center sm:pb-20">
+        <a
+          href="#reviews"
+          className="inline-flex items-center gap-2 rounded-full border border-slate-500 bg-black/40 px-4 py-1.5 text-sm text-slate-200 transition hover:border-white hover:text-white"
+        >
+          <span className="text-slate-300">★★★★★</span>
+          <span>
+            {AVERAGE_RATING} · {REVIEWS.length} отзывов
+          </span>
+        </a>
+
+        <p className="mt-6 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+          Сталь · Точность · Надёжность каждой детали
+        </p>
+
+        <h1 className="mt-3 text-4xl font-black uppercase leading-tight text-white sm:text-6xl">
+          Нож с <span className="text-red-600">характером</span>,
+          <br />
+          кован вручную
+        </h1>
+
+        <p className="mx-auto mt-4 max-w-md text-lg text-slate-300">
+          Кованые ножи ручной работы — финки, охотничьи, туристические, кухонные.
+        </p>
+
+        <Link
+          href="/products"
+          className="mt-8 inline-block rounded bg-red-800 px-10 py-4 text-lg font-semibold text-white transition hover:bg-red-700"
+        >
+          Перейти в каталог
+        </Link>
+
+        <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-6 border-t border-white/10 pt-8 text-left sm:grid-cols-4 sm:gap-6">
+          {HERO_FEATURES.map((f) => (
+            <div key={f.label} className="flex items-start gap-2">
+              <HeroIcon name={f.icon} />
+              <div>
+                <p className="text-sm font-semibold text-white">{f.label}</p>
+                <p className="text-xs text-slate-400">{f.sub}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
