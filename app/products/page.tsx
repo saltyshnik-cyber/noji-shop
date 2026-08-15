@@ -43,7 +43,7 @@ async function getProducts(): Promise<ProductRow[]> {
 
 function ProductCard({ p }: { p: ProductRow }) {
   return (
-    <div className="flex flex-col overflow-hidden rounded-lg bg-neutral-900 transition hover:brightness-110">
+    <div className="flex flex-col overflow-hidden rounded-lg bg-neutral-900 transition hover:shadow-lg hover:shadow-red-900/40">
       <Link href={`/products/${p.id}`} className="flex flex-1 flex-col">
         <div className="aspect-[4/5] w-full">
           <img src={p.photo_url} alt={p.name} className="h-full w-full object-cover object-center" />
@@ -119,7 +119,7 @@ export default async function ProductsPage() {
       <FloatingCartButton />
       <main className="min-w-0">
         <div className="mx-auto max-w-6xl px-4 py-10">
-          <Link href="/" className="mb-6 inline-block text-sm text-amber-800 hover:underline">
+          <Link href="/" className="mb-6 inline-block text-sm text-red-600 hover:underline">
             ← На главную
           </Link>
           <h1 className="mb-8 text-3xl font-bold">Каталог ножей</h1>

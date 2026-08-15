@@ -52,7 +52,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   return (
     <main className="min-w-0">
       <div className="mx-auto max-w-4xl px-4 py-10">
-        <Link href="/products" className="mb-6 inline-block text-sm text-amber-800 hover:underline">
+        <Link href="/products" className="mb-6 inline-block text-sm text-red-600 hover:underline">
           ← Назад к каталогу
         </Link>
 
@@ -72,7 +72,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             </div>
 
             {product.category_name && (
-              <span className="w-fit rounded bg-amber-100 px-2 py-0.5 text-xs text-amber-800">
+              <span className="w-fit rounded bg-red-100 px-2 py-0.5 text-xs text-red-800">
                 {product.category_name}
               </span>
             )}

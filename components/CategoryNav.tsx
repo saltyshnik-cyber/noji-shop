@@ -58,8 +58,8 @@ export function CategoryNav() {
               href={`#${c.slug}`}
               className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-1.5 text-sm font-medium transition ${
                 isActive
-                  ? "border-amber-800 bg-amber-800 text-white"
-                  : "border-neutral-600 text-neutral-200 hover:border-amber-800 hover:bg-amber-800 hover:text-white"
+                  ? "border-red-800 bg-red-800 text-white"
+                  : "border-neutral-600 text-neutral-200 hover:border-red-800 hover:bg-red-800 hover:text-white"
               }`}
             >
               {c.name}

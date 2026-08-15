@@ -42,7 +42,7 @@ export function AddToCartButton({
           e.stopPropagation();
           addItem({ productId, name, price, photoUrl }, 1);
         }}
-        className={`mt-2 w-fit rounded bg-amber-800 font-medium text-white transition hover:bg-amber-900 ${
+        className={`mt-2 w-fit rounded bg-red-800 font-medium text-white transition hover:bg-red-700 ${
           compact ? "px-4 py-1.5 text-sm" : "px-6 py-2"
         }`}
       >

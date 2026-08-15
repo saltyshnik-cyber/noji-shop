@@ -24,7 +24,7 @@ export default function CheckoutPage() {
           <h1 className="mb-4 text-2xl font-bold">Оформление заказа</h1>
           <p className="text-gray-500">
             Корзина пуста.{" "}
-            <Link href="/products" className="text-amber-800 hover:underline">
+            <Link href="/products" className="text-red-600 hover:underline">
               Перейти в каталог
             </Link>
           </p>
@@ -140,7 +140,7 @@ export default function CheckoutPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="mt-2 rounded bg-amber-800 px-6 py-2 font-medium text-white transition hover:bg-amber-900 disabled:cursor-not-allowed disabled:bg-gray-300"
+            className="mt-2 rounded bg-red-800 px-6 py-2 font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-gray-300"
           >
             {submitting ? "Отправка…" : "Подтвердить заказ"}
           </button>

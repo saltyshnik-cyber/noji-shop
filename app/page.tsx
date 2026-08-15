@@ -84,7 +84,7 @@ const AVERAGE_RATING = (REVIEWS.reduce((sum, r) => sum + r.rating, 0) / REVIEWS.
 type HeroIconName = "star" | "shield" | "clock" | "hammer";
 
 function HeroIcon({ name }: { name: HeroIconName }) {
-  const common = { viewBox: "0 0 24 24", className: "h-6 w-6 shrink-0 text-slate-400" };
+  const common = { viewBox: "0 0 24 24", className: "h-6 w-6 shrink-0 text-red-700" };
   switch (name) {
     case "star":
       return (
@@ -206,7 +206,7 @@ function FeaturedProductCard({ p }: { p: FeaturedProduct }) {
   return (
     <Link
       href={`/products/${p.id}`}
-      className="flex w-64 shrink-0 snap-start flex-col overflow-hidden rounded-lg bg-neutral-900 transition hover:brightness-110 sm:w-auto"
+      className="flex w-64 shrink-0 snap-start flex-col overflow-hidden rounded-lg bg-neutral-900 transition hover:shadow-lg hover:shadow-red-900/40 sm:w-auto"
     >
       <div className="aspect-[4/5] w-full">
         <img src={p.photo_url} alt={p.name} className="h-full w-full object-cover object-center" />
@@ -254,7 +254,7 @@ function FeaturedProductsSection({ products }: { products: FeaturedProduct[] }) 
         <div className="mt-8 text-center">
           <Link
             href="/products"
-            className="inline-block rounded border border-slate-500 px-6 py-2 font-medium text-slate-200 transition hover:border-red-700 hover:bg-red-800 hover:text-white"
+            className="inline-block rounded bg-red-800 px-6 py-2 font-medium text-white transition hover:bg-red-700"
           >
             Смотреть весь каталог
           </Link>

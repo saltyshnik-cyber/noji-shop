@@ -86,7 +86,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           )}
         </dl>
 
-        <Link href="/products" className="text-amber-800 hover:underline">
+        <Link href="/products" className="text-red-600 hover:underline">
           ← Продолжить покупки
         </Link>
       </div>

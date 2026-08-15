@@ -48,7 +48,7 @@ export default function AdminLoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Пароль"
-          className="w-full rounded border border-gray-300 px-4 py-2 outline-none focus:border-amber-800"
+          className="w-full rounded border border-gray-300 px-4 py-2 outline-none focus:border-red-800"
         />
 
         {error && <p className="text-sm text-red-600">{error}</p>}
@@ -56,7 +56,7 @@ export default function AdminLoginPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full rounded bg-amber-800 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-900 disabled:cursor-not-allowed disabled:opacity-40"
+          className="w-full rounded bg-red-800 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {isSubmitting ? "Входим…" : "Войти"}
         </button>

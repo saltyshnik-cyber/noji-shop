@@ -11,13 +11,13 @@ export default function CartPage() {
     return (
       <main className="min-w-0">
         <div className="mx-auto max-w-3xl px-4 py-10">
-          <Link href="/products" className="mb-6 inline-block text-sm text-amber-800 hover:underline">
+          <Link href="/products" className="mb-6 inline-block text-sm text-red-600 hover:underline">
             ← Назад в каталог
           </Link>
           <h1 className="mb-4 text-2xl font-bold">Корзина</h1>
           <p className="text-gray-500">
             Корзина пуста.{" "}
-            <Link href="/products" className="text-amber-800 hover:underline">
+            <Link href="/products" className="text-red-600 hover:underline">
               Перейти в каталог
             </Link>
           </p>
@@ -29,7 +29,7 @@ export default function CartPage() {
   return (
     <main className="min-w-0">
       <div className="mx-auto max-w-3xl px-4 py-10">
-        <Link href="/products" className="mb-6 inline-block text-sm text-amber-800 hover:underline">
+        <Link href="/products" className="mb-6 inline-block text-sm text-red-600 hover:underline">
           ← Назад в каталог
         </Link>
         <h1 className="mb-6 text-2xl font-bold">Корзина</h1>
@@ -69,7 +69,7 @@ export default function CartPage() {
           <p className="text-xl font-bold">Итого: {totalPrice.toLocaleString("ru-RU")} ₽</p>
           <Link
             href="/checkout"
-            className="rounded bg-amber-800 px-6 py-2 font-medium text-white transition hover:bg-amber-900"
+            className="rounded bg-red-800 px-6 py-2 font-medium text-white transition hover:bg-red-700"
           >
             Оформить заказ
           </Link>
