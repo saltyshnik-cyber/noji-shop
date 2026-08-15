@@ -38,7 +38,7 @@ export default function AdminLoginPage() {
   return (
     <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-4">
       <h1 className="text-2xl font-bold">Вход в админку</h1>
-      <p className="mt-1 text-sm text-gray-500">Knife Shop</p>
+      <p className="mt-1 text-sm text-gray-500">Ножи для жизни</p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <input

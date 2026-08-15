@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Knife Shop — кованые ножи ручной работы",
+  title: "Ножи для жизни — кованые ножи ручной работы",
   description: "Кованые ножи ручной работы: охотничьи, туристические, кухонные, финки НКВД.",
 };
 

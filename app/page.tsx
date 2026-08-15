@@ -79,14 +79,28 @@ function HeroSection() {
       <img src={HERO_IMAGE} alt="" className="absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/40" />
       <div className="relative z-10 mx-auto max-w-2xl px-4 text-center">
-        <h1 className="text-4xl font-black uppercase tracking-wide text-white sm:text-6xl">Knife Shop</h1>
+        <h1 className="text-4xl font-black uppercase tracking-wide text-white sm:text-6xl">Ножи для жизни</h1>
         <p className="mt-4 text-lg text-slate-300 sm:text-xl">Кованые ножи ручной работы</p>
-        <Link
-          href="/products"
-          className="mt-8 inline-block rounded bg-red-800 px-8 py-3 text-lg font-semibold text-white transition hover:bg-red-700"
-        >
-          Перейти в каталог
-        </Link>
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Link
+            href="/products"
+            className="rounded bg-red-800 px-8 py-3 text-lg font-semibold text-white transition hover:bg-red-700"
+          >
+            Перейти в каталог
+          </Link>
+          <a
+            href="#reviews"
+            className="rounded border border-slate-400 px-8 py-3 text-lg font-semibold text-slate-200 transition hover:border-white hover:text-white"
+          >
+            Отзывы
+          </a>
+          <a
+            href="#contacts"
+            className="rounded border border-slate-400 px-8 py-3 text-lg font-semibold text-slate-200 transition hover:border-white hover:text-white"
+          >
+            Контакты
+          </a>
+        </div>
       </div>
     </section>
   );
@@ -186,7 +200,7 @@ function ReviewCard({ review }: { review: Review }) {
 
 function ReviewsSection() {
   return (
-    <section className="border-b border-neutral-800 bg-neutral-900">
+    <section id="reviews" className="scroll-mt-16 border-b border-neutral-800 bg-neutral-900">
       <div className="mx-auto max-w-6xl px-4 py-16">
         <h2 className="mb-8 text-center text-2xl font-bold text-white sm:text-3xl">Отзывы</h2>
         <div className="flex flex-nowrap gap-4 overflow-x-auto overscroll-x-contain snap-x snap-mandatory pb-2 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:pb-0 lg:grid-cols-3">
@@ -201,7 +215,7 @@ function ReviewsSection() {
 
 function ContactsSection() {
   return (
-    <section>
+    <section id="contacts" className="scroll-mt-16">
       <div className="mx-auto max-w-4xl px-4 py-16">
         <h2 className="mb-8 text-center text-2xl font-bold text-white sm:text-3xl">Контакты и доставка</h2>
         <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-3">

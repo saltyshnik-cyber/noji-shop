@@ -62,7 +62,7 @@ export async function sendNewOrderEmail(order: OrderForEmail): Promise<void> {
 
   try {
     await resend.emails.send({
-      from: "Knife Shop <onboarding@resend.dev>",
+      from: "Ножи для жизни <onboarding@resend.dev>",
       to: adminEmail,
       subject: `Новый заказ №${order.id} — ${order.total.toLocaleString("ru-RU")} ₽`,
       html,

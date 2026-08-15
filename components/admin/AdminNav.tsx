@@ -20,7 +20,7 @@ export default function AdminNav() {
 
   return (
     <nav className="flex items-center justify-between border-b border-gray-200 pb-4">
-      <span className="text-lg font-bold">Админка Knife Shop</span>
+      <span className="text-lg font-bold">Админка «Ножи для жизни»</span>
       <button
         type="button"
         onClick={handleLogout}
