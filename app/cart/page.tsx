@@ -11,6 +11,9 @@ export default function CartPage() {
     return (
       <main className="min-w-0">
         <div className="mx-auto max-w-3xl px-4 py-10">
+          <Link href="/products" className="mb-6 inline-block text-sm text-amber-800 hover:underline">
+            ← Назад в каталог
+          </Link>
           <h1 className="mb-4 text-2xl font-bold">Корзина</h1>
           <p className="text-gray-500">
             Корзина пуста.{" "}
@@ -26,6 +29,9 @@ export default function CartPage() {
   return (
     <main className="min-w-0">
       <div className="mx-auto max-w-3xl px-4 py-10">
+        <Link href="/products" className="mb-6 inline-block text-sm text-amber-800 hover:underline">
+          ← Назад в каталог
+        </Link>
         <h1 className="mb-6 text-2xl font-bold">Корзина</h1>
 
         <div className="flex flex-col divide-y divide-gray-200 border-y border-gray-200">

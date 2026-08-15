@@ -3,6 +3,7 @@ import { ensureSchema, sql } from "@/lib/db";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { CategoryNav } from "@/components/CategoryNav";
 import { CATEGORY_SECTIONS } from "@/lib/categoryNav";
+import { FloatingCartButton } from "@/components/FloatingCartButton";
 
 export const dynamic = "force-dynamic";
 
@@ -115,8 +116,12 @@ export default async function ProductsPage() {
   return (
     <>
       <CategoryNav />
+      <FloatingCartButton />
       <main className="min-w-0">
         <div className="mx-auto max-w-6xl px-4 py-10">
+          <Link href="/" className="mb-6 inline-block text-sm text-amber-800 hover:underline">
+            ← На главную
+          </Link>
           <h1 className="mb-8 text-3xl font-bold">Каталог ножей</h1>
 
           {products.length === 0 ? (

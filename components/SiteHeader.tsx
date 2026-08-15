@@ -17,7 +17,10 @@ export function SiteHeader() {
           <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-slate-400">для жизни</span>
         </Link>
         {isHome ? (
-          <a href="#contacts" className="text-sm font-medium text-neutral-300 hover:text-white hover:underline">
+          <a
+            href="#contacts"
+            className="rounded border border-slate-500 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-white hover:text-white"
+          >
             Контакты
           </a>
         ) : (
