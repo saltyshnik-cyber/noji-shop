@@ -63,6 +63,12 @@ export function ensureSchema(): Promise<void> {
           price NUMERIC(10, 2) NOT NULL
         )
       `;
+      await sql`
+        CREATE TABLE IF NOT EXISTS site_settings (
+          key TEXT PRIMARY KEY,
+          value TEXT NOT NULL
+        )
+      `;
     })();
   }
   return schemaReady;

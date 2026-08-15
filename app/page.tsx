@@ -1,17 +1,8 @@
 import Link from "next/link";
 import { ensureSchema, sql } from "@/lib/db";
+import { getSiteSettings, phoneToTelHref } from "@/lib/siteSettings";
 
 export const dynamic = "force-dynamic";
-
-const HERO_IMAGE =
-  "https://h8pxe4fhemspu7gv.public.blob.vercel-storage.com/IMG_0555-MesK0AHcQXR24RMzch5QVZU7RllU0a.JPG";
-
-const EXCLUSIVE_GALLERY_IMAGES = [
-  "https://h8pxe4fhemspu7gv.public.blob.vercel-storage.com/IMG_0554-H2zczzFItYrvFDJ40mxTnZ2eFLdJIh.JPG",
-  "https://h8pxe4fhemspu7gv.public.blob.vercel-storage.com/IMG_0555-MesK0AHcQXR24RMzch5QVZU7RllU0a.JPG",
-  "https://h8pxe4fhemspu7gv.public.blob.vercel-storage.com/IMG_0556-y6FlkA4AoKHlWet8XGGY3cUpvLTdhl.JPG",
-  "https://h8pxe4fhemspu7gv.public.blob.vercel-storage.com/IMG_0557-ITrd5MNNZDC6Pd8YgcboBQ2lsbtCOy.JPG",
-];
 
 const FEATURED_PRODUCT_NAMES = [
   "Турист №2",
@@ -130,20 +121,20 @@ const HERO_FEATURES: { icon: HeroIconName; label: string; sub: string }[] = [
   { icon: "hammer", label: "Ручная ковка", sub: "Натуральные материалы" },
 ];
 
-function HeroSection() {
+function HeroSection({ heroImageUrl, shopName, shopSubtitle }: { heroImageUrl: string; shopName: string; shopSubtitle: string }) {
   return (
     <section className="relative flex min-h-[80vh] items-end justify-center overflow-hidden border-b border-neutral-800">
-      <img src={HERO_IMAGE} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      <img src={heroImageUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/40" />
 
       <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 text-left sm:px-8 sm:pb-20">
         <div className="max-w-xl">
           <div className="mb-6 leading-none">
             <p className="text-2xl font-black uppercase tracking-wide text-white sm:text-3xl sm:tracking-wider">
-              Ножи для жизни
+              {shopName}
             </p>
             <p className="mt-2 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
-              Мастерская Стрижова А.С.
+              {shopSubtitle}
             </p>
           </div>
 
@@ -203,29 +194,37 @@ function TrustFeaturesSection() {
   );
 }
 
-function AboutSection() {
+function AboutSection({
+  aboutText,
+  authorName,
+  authorTitle,
+}: {
+  aboutText: string;
+  authorName: string;
+  authorTitle: string;
+}) {
   return (
     <section className="border-b border-neutral-800 bg-neutral-900">
       <div className="mx-auto max-w-3xl px-4 py-16 text-center">
         <h2 className="text-2xl font-bold text-white sm:text-3xl">О мастерской</h2>
-        <p className="mt-4 text-slate-300">
-          Каждый нож куётся вручную из инструментальной стали и собирается из натуральных материалов — дерева, кожи
-          и металла. Мы не делаем массовых партий: клинок, рукоять и ножны на каждом изделии подгоняются
-          индивидуально, с вниманием к балансу и деталям.
+        <p className="mt-4 whitespace-pre-line text-slate-300">{aboutText}</p>
+        <p className="mt-4 text-sm text-slate-500">
+          — {authorName}, {authorTitle}
         </p>
-        <p className="mt-4 text-sm text-slate-500">— Алексей Стрижов, мастер-кузнец</p>
       </div>
     </section>
   );
 }
 
-function ExclusiveGallerySection() {
+function ExclusiveGallerySection({ images }: { images: string[] }) {
+  if (images.length === 0) return null;
+
   return (
     <section className="border-b border-neutral-800">
       <div className="mx-auto max-w-6xl px-4 py-16">
         <h2 className="mb-8 text-center text-2xl font-bold text-white sm:text-3xl">Эксклюзивные авторские работы</h2>
         <div className="flex flex-nowrap gap-4 overflow-x-auto overscroll-x-contain snap-x snap-mandatory pb-2 sm:grid sm:grid-cols-4 sm:gap-6 sm:overflow-visible sm:pb-0">
-          {EXCLUSIVE_GALLERY_IMAGES.map((src, i) => (
+          {images.map((src, i) => (
             <div key={i} className="w-64 shrink-0 snap-start sm:w-auto">
               <div className="aspect-[4/5] overflow-hidden rounded-lg bg-neutral-900">
                 <img
@@ -334,7 +333,7 @@ function ReviewsSection() {
   );
 }
 
-function ContactsSection() {
+function ContactsSection({ phone, address, delivery }: { phone: string; address: string; delivery: string }) {
   return (
     <section id="contacts" className="scroll-mt-16">
       <div className="mx-auto max-w-4xl px-4 py-16">
@@ -342,17 +341,17 @@ function ContactsSection() {
         <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-3">
           <div>
             <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Телефон</h3>
-            <a href="tel:+79601650123" className="text-lg text-white hover:text-red-500 hover:underline">
-              8 (960) 165-01-23
+            <a href={phoneToTelHref(phone)} className="text-lg text-white hover:text-red-500 hover:underline">
+              {phone}
             </a>
           </div>
           <div>
             <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Мастерская</h3>
-            <p className="text-lg text-white">г. Москва, ул. Примерная, 1</p>
+            <p className="text-lg text-white">{address}</p>
           </div>
           <div>
             <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Доставка</h3>
-            <p className="text-lg text-white">По России, 3–7 рабочих дней</p>
+            <p className="text-lg text-white">{delivery}</p>
           </div>
         </div>
         <p className="mt-8 text-center text-xs text-slate-500">Контактные данные временные — уточним и заменим позже.</p>
@@ -362,17 +361,21 @@ function ContactsSection() {
 }
 
 export default async function HomePage() {
-  const featuredProducts = await getFeaturedProducts();
+  const [featuredProducts, settings] = await Promise.all([getFeaturedProducts(), getSiteSettings()]);
 
   return (
     <main className="min-w-0 bg-neutral-950">
-      <HeroSection />
+      <HeroSection heroImageUrl={settings.heroImageUrl} shopName={settings.shopName} shopSubtitle={settings.shopSubtitle} />
       <TrustFeaturesSection />
-      <AboutSection />
+      <AboutSection
+        aboutText={settings.aboutText}
+        authorName={settings.aboutAuthorName}
+        authorTitle={settings.aboutAuthorTitle}
+      />
       <FeaturedProductsSection products={featuredProducts} />
       <ReviewsSection />
-      <ExclusiveGallerySection />
-      <ContactsSection />
+      <ExclusiveGallerySection images={settings.galleryImages} />
+      <ContactsSection phone={settings.contactPhone} address={settings.contactAddress} delivery={settings.contactDelivery} />
     </main>
   );
 }

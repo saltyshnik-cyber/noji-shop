@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
 import { QuantityStepper } from "@/components/QuantityStepper";
 
+export const dynamic = "force-dynamic";
+
 export default function CartPage() {
   const { items, removeItem, setQuantity, totalPrice } = useCart();
 

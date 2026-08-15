@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
 import { isBlank, isValidEmail, isValidPhone } from "@/lib/validation";
 
+export const dynamic = "force-dynamic";
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, totalPrice, clear } = useCart();
