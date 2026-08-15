@@ -75,10 +75,10 @@ const REVIEWS: Review[] = [
 
 function HeroSection() {
   return (
-    <section className="relative flex min-h-[85vh] items-center justify-center overflow-hidden border-b border-neutral-800">
+    <section className="relative flex min-h-[85vh] items-end justify-center overflow-hidden border-b border-neutral-800">
       <img src={HERO_IMAGE} alt="" className="absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/40" />
-      <div className="relative z-10 mx-auto max-w-2xl px-4 text-center">
+      <div className="relative z-10 mx-auto max-w-2xl px-4 pb-16 text-center sm:pb-20">
         <h1 className="text-4xl font-black uppercase tracking-wide text-white sm:text-6xl">Ножи для жизни</h1>
         <p className="mt-4 text-lg text-slate-300 sm:text-xl">Кованые ножи ручной работы</p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
