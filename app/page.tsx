@@ -4,7 +4,14 @@ import { ensureSchema, sql } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 const HERO_IMAGE =
-  "https://h8pxe4fhemspu7gv.public.blob.vercel-storage.com/noj%203%20%282%29-5oXLXKxkxpEWDMMVc94XOhBEoSMJt1.PNG";
+  "https://h8pxe4fhemspu7gv.public.blob.vercel-storage.com/IMG_0554-H2zczzFItYrvFDJ40mxTnZ2eFLdJIh.JPG";
+
+const EXCLUSIVE_GALLERY_IMAGES = [
+  "https://h8pxe4fhemspu7gv.public.blob.vercel-storage.com/IMG_0554-H2zczzFItYrvFDJ40mxTnZ2eFLdJIh.JPG",
+  "https://h8pxe4fhemspu7gv.public.blob.vercel-storage.com/IMG_0555-MesK0AHcQXR24RMzch5QVZU7RllU0a.JPG",
+  "https://h8pxe4fhemspu7gv.public.blob.vercel-storage.com/IMG_0556-y6FlkA4AoKHlWet8XGGY3cUpvLTdhl.JPG",
+  "https://h8pxe4fhemspu7gv.public.blob.vercel-storage.com/IMG_0557-ITrd5MNNZDC6Pd8YgcboBQ2lsbtCOy.JPG",
+];
 
 const FEATURED_PRODUCT_NAMES = [
   "Турист №2",
@@ -203,6 +210,27 @@ function AboutSection() {
   );
 }
 
+function ExclusiveGallerySection() {
+  return (
+    <section className="border-b border-neutral-800">
+      <div className="mx-auto max-w-6xl px-4 py-16">
+        <h2 className="mb-8 text-center text-2xl font-bold text-white sm:text-3xl">Эксклюзивные авторские работы</h2>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
+          {EXCLUSIVE_GALLERY_IMAGES.map((src, i) => (
+            <div key={i} className="aspect-[4/5] overflow-hidden rounded-lg bg-neutral-900">
+              <img
+                src={src}
+                alt=""
+                className="h-full w-full object-cover object-center transition hover:scale-105"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FeaturedProductCard({ p }: { p: FeaturedProduct }) {
   return (
     <Link
@@ -330,6 +358,7 @@ export default async function HomePage() {
       <HeroSection />
       <TrustFeaturesSection />
       <AboutSection />
+      <ExclusiveGallerySection />
       <FeaturedProductsSection products={featuredProducts} />
       <ReviewsSection />
       <ContactsSection />

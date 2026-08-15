@@ -1,7 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join, extname } from "node:path";
 
-const PHOTOS_DIR = "C:\\Users\\пк\\Downloads\\ножи фото";
+const PHOTOS_DIR = "C:\\Users\\пк\\Downloads\\эксклюзив фото";
 const IMAGE_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif"]);
 
 const SITE_URL = process.env.SITE_URL ?? "https://knife-shop-five.vercel.app";
