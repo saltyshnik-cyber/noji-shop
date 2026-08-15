@@ -24,7 +24,10 @@ export function SiteHeader() {
             Контакты
           </a>
         ) : (
-          <Link href="/cart" className="text-sm font-medium text-neutral-300 hover:text-white hover:underline">
+          <Link
+            href="/cart"
+            className="rounded border border-slate-500 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-white hover:text-white"
+          >
             Корзина{totalCount > 0 ? ` (${totalCount})` : ""}
           </Link>
         )}

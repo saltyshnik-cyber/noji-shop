@@ -197,6 +197,7 @@ function AboutSection() {
           и металла. Мы не делаем массовых партий: клинок, рукоять и ножны на каждом изделии подгоняются
           индивидуально, с вниманием к балансу и деталям.
         </p>
+        <p className="mt-4 font-semibold text-white">— Алексей Стрижов, мастер-кузнец</p>
       </div>
     </section>
   );
@@ -302,7 +303,9 @@ function ContactsSection() {
         <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-3">
           <div>
             <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Телефон</h3>
-            <p className="text-lg text-white">+7 (000) 000-00-00</p>
+            <a href="tel:+79601650123" className="text-lg text-white hover:text-red-500 hover:underline">
+              8 (960) 165-01-23
+            </a>
           </div>
           <div>
             <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Мастерская</h3>
