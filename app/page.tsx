@@ -125,50 +125,53 @@ const HERO_FEATURES: { icon: HeroIconName; label: string; sub: string }[] = [
 
 function HeroSection() {
   return (
-    <section className="relative flex min-h-[92vh] items-end justify-center overflow-hidden border-b border-neutral-800">
+    <section className="relative flex min-h-[80vh] items-end justify-center overflow-hidden border-b border-neutral-800">
       <img src={HERO_IMAGE} alt="" className="absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/40" />
 
-      <a
-        href="#contacts"
-        className="absolute right-4 top-4 z-10 text-xs font-medium text-slate-300 underline-offset-4 transition hover:text-white hover:underline sm:right-6 sm:top-6 sm:text-sm"
-      >
-        Контакты →
-      </a>
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 text-left sm:px-8 sm:pb-20">
+        <div className="max-w-xl">
+          <a
+            href="#reviews"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-500 bg-black/40 px-4 py-1.5 text-sm text-slate-200 transition hover:border-white hover:text-white"
+          >
+            <span className="text-slate-300">★★★★★</span>
+            <span>
+              {AVERAGE_RATING} · {REVIEWS.length} отзывов
+            </span>
+          </a>
 
-      <div className="relative z-10 mx-auto w-full max-w-2xl px-4 pb-16 text-center sm:pb-20">
-        <a
-          href="#reviews"
-          className="inline-flex items-center gap-2 rounded-full border border-slate-500 bg-black/40 px-4 py-1.5 text-sm text-slate-200 transition hover:border-white hover:text-white"
-        >
-          <span className="text-slate-300">★★★★★</span>
-          <span>
-            {AVERAGE_RATING} · {REVIEWS.length} отзывов
-          </span>
-        </a>
+          <p className="mt-6 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+            Сталь · Точность · Надёжность каждой детали
+          </p>
 
-        <p className="mt-6 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
-          Сталь · Точность · Надёжность каждой детали
-        </p>
+          <h1 className="mt-3 text-4xl font-black uppercase leading-tight text-white sm:text-6xl">
+            Нож с <span className="text-red-600">характером</span>,
+            <br />
+            кован вручную
+          </h1>
 
-        <h1 className="mt-3 text-4xl font-black uppercase leading-tight text-white sm:text-6xl">
-          Нож с <span className="text-red-600">характером</span>,
-          <br />
-          кован вручную
-        </h1>
+          <p className="mt-4 max-w-md text-lg text-slate-300">
+            Кованые ножи ручной работы — финки, охотничьи, туристические, кухонные.
+          </p>
 
-        <p className="mx-auto mt-4 max-w-md text-lg text-slate-300">
-          Кованые ножи ручной работы — финки, охотничьи, туристические, кухонные.
-        </p>
+          <Link
+            href="/products"
+            className="mt-8 inline-block rounded bg-red-800 px-10 py-4 text-lg font-semibold text-white transition hover:bg-red-700"
+          >
+            Перейти в каталог
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
 
-        <Link
-          href="/products"
-          className="mt-8 inline-block rounded bg-red-800 px-10 py-4 text-lg font-semibold text-white transition hover:bg-red-700"
-        >
-          Перейти в каталог
-        </Link>
-
-        <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-6 border-t border-white/10 pt-8 text-left sm:grid-cols-4 sm:gap-6">
+function TrustFeaturesSection() {
+  return (
+    <section className="border-b border-neutral-800">
+      <div className="mx-auto max-w-6xl px-4 py-10">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-4 sm:gap-6">
           {HERO_FEATURES.map((f) => (
             <div key={f.label} className="flex items-start gap-2">
               <HeroIcon name={f.icon} />
@@ -322,6 +325,7 @@ export default async function HomePage() {
   return (
     <main className="min-w-0 bg-neutral-950">
       <HeroSection />
+      <TrustFeaturesSection />
       <AboutSection />
       <FeaturedProductsSection products={featuredProducts} />
       <ReviewsSection />
