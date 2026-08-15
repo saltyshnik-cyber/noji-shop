@@ -11,7 +11,7 @@ export default function CartPage() {
     return (
       <main className="min-w-0">
         <div className="mx-auto max-w-3xl px-4 py-10">
-          <Link href="/products" className="mb-6 inline-block text-sm text-red-800 transition hover:text-red-500">
+          <Link href="/products" className="mb-6 inline-block text-sm text-red-900 transition hover:text-red-700">
             ← Назад в каталог
           </Link>
           <h1 className="mb-4 text-2xl font-bold">Корзина</h1>
@@ -29,7 +29,7 @@ export default function CartPage() {
   return (
     <main className="min-w-0">
       <div className="mx-auto max-w-3xl px-4 py-10">
-        <Link href="/products" className="mb-6 inline-block text-sm text-red-800 transition hover:text-red-500">
+        <Link href="/products" className="mb-6 inline-block text-sm text-red-900 transition hover:text-red-700">
           ← Назад в каталог
         </Link>
         <h1 className="mb-6 text-2xl font-bold">Корзина</h1>
