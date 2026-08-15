@@ -138,6 +138,15 @@ function HeroSection() {
 
       <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 text-left sm:px-8 sm:pb-20">
         <div className="max-w-xl">
+          <div className="mb-6 leading-none">
+            <p className="text-2xl font-black uppercase tracking-wide text-white sm:text-3xl sm:tracking-wider">
+              Ножи для жизни
+            </p>
+            <p className="mt-2 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+              Мастерская Стрижова А.С.
+            </p>
+          </div>
+
           <a
             href="#reviews"
             className="inline-flex items-center gap-2 rounded-full border border-slate-500 bg-black/40 px-4 py-1.5 text-sm text-slate-200 transition hover:border-white hover:text-white"
@@ -358,8 +367,8 @@ export default async function HomePage() {
       <HeroSection />
       <TrustFeaturesSection />
       <AboutSection />
-      <ExclusiveGallerySection />
       <FeaturedProductsSection products={featuredProducts} />
+      <ExclusiveGallerySection />
       <ReviewsSection />
       <ContactsSection />
     </main>

@@ -13,8 +13,12 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 h-16 border-b border-neutral-800 bg-neutral-950">
       <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-4">
         <Link href="/" className="flex flex-col leading-none">
-          <span className="text-2xl font-black uppercase tracking-wider text-white">Ножи</span>
-          <span className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">для жизни</span>
+          <span className="text-lg font-black uppercase tracking-wide text-white sm:text-2xl sm:tracking-wider">
+            Ножи для жизни
+          </span>
+          <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-slate-400 sm:text-xs sm:tracking-[0.3em]">
+            Мастерская Стрижова А.С.
+          </span>
         </Link>
         {isHome ? (
           <a
