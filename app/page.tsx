@@ -370,8 +370,8 @@ export default async function HomePage() {
       <TrustFeaturesSection />
       <AboutSection />
       <FeaturedProductsSection products={featuredProducts} />
-      <ExclusiveGallerySection />
       <ReviewsSection />
+      <ExclusiveGallerySection />
       <ContactsSection />
     </main>
   );
