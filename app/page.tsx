@@ -4,7 +4,7 @@ import { ensureSchema, sql } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 const HERO_IMAGE =
-  "https://h8pxe4fhemspu7gv.public.blob.vercel-storage.com/IMG_0554-H2zczzFItYrvFDJ40mxTnZ2eFLdJIh.JPG";
+  "https://h8pxe4fhemspu7gv.public.blob.vercel-storage.com/IMG_0555-MesK0AHcQXR24RMzch5QVZU7RllU0a.JPG";
 
 const EXCLUSIVE_GALLERY_IMAGES = [
   "https://h8pxe4fhemspu7gv.public.blob.vercel-storage.com/IMG_0554-H2zczzFItYrvFDJ40mxTnZ2eFLdJIh.JPG",
@@ -224,14 +224,16 @@ function ExclusiveGallerySection() {
     <section className="border-b border-neutral-800">
       <div className="mx-auto max-w-6xl px-4 py-16">
         <h2 className="mb-8 text-center text-2xl font-bold text-white sm:text-3xl">Эксклюзивные авторские работы</h2>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
+        <div className="flex flex-nowrap gap-4 overflow-x-auto overscroll-x-contain snap-x snap-mandatory pb-2 sm:grid sm:grid-cols-4 sm:gap-6 sm:overflow-visible sm:pb-0">
           {EXCLUSIVE_GALLERY_IMAGES.map((src, i) => (
-            <div key={i} className="aspect-[4/5] overflow-hidden rounded-lg bg-neutral-900">
-              <img
-                src={src}
-                alt=""
-                className="h-full w-full object-cover object-center transition hover:scale-105"
-              />
+            <div key={i} className="w-64 shrink-0 snap-start sm:w-auto">
+              <div className="aspect-[4/5] overflow-hidden rounded-lg bg-neutral-900">
+                <img
+                  src={src}
+                  alt=""
+                  className="h-full w-full object-cover object-center transition hover:scale-105"
+                />
+              </div>
             </div>
           ))}
         </div>
