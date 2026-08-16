@@ -29,6 +29,14 @@ export async function GET(request: Request) {
   const cookie = `${ADMIN_SESSION_COOKIE}=${sessionToken}`;
   const result: Record<string, unknown> = {};
 
+  const deleteId = url.searchParams.get("deleteId");
+  if (deleteId) {
+    const rows = await sql`SELECT url FROM product_images WHERE id = ${deleteId}`;
+    await fetch(`${origin}/api/admin/product-images/${deleteId}`, { method: "DELETE", headers: { cookie } });
+    if (rows[0]?.url) await del(rows[0].url as string);
+    return NextResponse.json({ deleted: deleteId });
+  }
+
   // 1. Disallowed video content type should be rejected.
   const badToken = await getClientToken(origin, cookie, "diag-bad.mov");
   if (badToken.json?.clientToken) {
@@ -64,19 +72,25 @@ export async function GET(request: Request) {
       const attachJson = await attachRes.json();
       result.videoUpload = { ok: attachRes.ok, image: attachJson.image };
 
+      const leave = url.searchParams.get("leave") === "1";
+
       if (attachJson?.image?.id) {
         const rows = await sql`SELECT id, url, type FROM product_images WHERE id = ${attachJson.image.id}`;
         result.storedRow = rows[0];
 
-        await fetch(`${origin}/api/admin/product-images/${attachJson.image.id}`, {
-          method: "DELETE",
-          headers: { cookie },
-        });
-        result.cleanedUpRow = true;
+        if (!leave) {
+          await fetch(`${origin}/api/admin/product-images/${attachJson.image.id}`, {
+            method: "DELETE",
+            headers: { cookie },
+          });
+          result.cleanedUpRow = true;
+        }
       }
 
-      await del(blob.url);
-      result.cleanedUpBlob = true;
+      if (!leave) {
+        await del(blob.url);
+        result.cleanedUpBlob = true;
+      }
     } catch (err) {
       result.videoUpload = { ok: false, error: err instanceof Error ? err.message : String(err) };
     }
