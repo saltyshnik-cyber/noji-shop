@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { uploadPhoto } from "@/lib/uploadPhoto";
 
 type ProductImage = { id: number; url: string; sort_order: number };
 
@@ -22,21 +23,12 @@ export default function ProductImagesManager({
     setUploading(true);
     setError(null);
     try {
-      const uploadRes = await fetch("/api/admin/upload", {
-        method: "POST",
-        headers: { "x-file-name": file.name, "Content-Type": file.type || "application/octet-stream" },
-        body: file,
-      });
-      const uploadJson = await uploadRes.json();
-      if (!uploadRes.ok) {
-        setError(uploadJson.error ?? "Не удалось загрузить фото");
-        return;
-      }
+      const url = await uploadPhoto(file);
 
       const res = await fetch(`/api/admin/products/${productId}/images`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: uploadJson.url }),
+        body: JSON.stringify({ url }),
       });
       const json = await res.json();
       if (!res.ok) {
@@ -45,8 +37,8 @@ export default function ProductImagesManager({
       }
       setImages((prev) => [...prev, json.image]);
       router.refresh();
-    } catch {
-      setError("Не удалось загрузить фото. Проверьте соединение.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Не удалось загрузить фото");
     } finally {
       setUploading(false);
     }

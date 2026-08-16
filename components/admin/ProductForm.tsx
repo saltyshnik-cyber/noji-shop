@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { uploadPhoto } from "@/lib/uploadPhoto";
 
 type Category = { id: number; name: string };
 
@@ -55,19 +56,10 @@ export default function ProductForm({
     setUploading(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        headers: { "x-file-name": file.name, "Content-Type": file.type || "application/octet-stream" },
-        body: file,
-      });
-      const json = await res.json();
-      if (!res.ok) {
-        setError(json.error ?? "Не удалось загрузить фото");
-        return;
-      }
-      update("photo_url", json.url);
-    } catch {
-      setError("Не удалось загрузить фото. Проверьте соединение.");
+      const url = await uploadPhoto(file);
+      update("photo_url", url);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Не удалось загрузить фото");
     } finally {
       setUploading(false);
     }

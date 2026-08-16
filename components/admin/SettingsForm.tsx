@@ -3,17 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { SiteSettings } from "@/lib/siteSettings";
-
-async function uploadFile(file: File): Promise<string> {
-  const res = await fetch("/api/admin/upload", {
-    method: "POST",
-    headers: { "x-file-name": file.name, "Content-Type": file.type || "application/octet-stream" },
-    body: file,
-  });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.error ?? "Не удалось загрузить фото");
-  return json.url as string;
-}
+import { uploadPhoto as uploadFile } from "@/lib/uploadPhoto";
 
 export default function SettingsForm({ initial }: { initial: SiteSettings }) {
   const router = useRouter();

@@ -1,21 +1,22 @@
 import { NextResponse } from "next/server";
-import { put } from "@vercel/blob";
+import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 
 export async function POST(request: Request) {
-  const fileName = request.headers.get("x-file-name");
-  if (!fileName) {
-    return NextResponse.json({ error: "x-file-name header required" }, { status: 400 });
+  const body = (await request.json()) as HandleUploadBody;
+
+  try {
+    const jsonResponse = await handleUpload({
+      body,
+      request,
+      onBeforeGenerateToken: async () => ({
+        allowedContentTypes: ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif", "image/gif"],
+        addRandomSuffix: true,
+        maximumSizeInBytes: 50 * 1024 * 1024,
+      }),
+    });
+    return NextResponse.json(jsonResponse);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Неизвестная ошибка загрузки";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
-
-  const buffer = Buffer.from(await request.arrayBuffer());
-  if (buffer.length === 0) {
-    return NextResponse.json({ error: "empty file" }, { status: 400 });
-  }
-
-  const blob = await put(fileName, buffer, {
-    access: "public",
-    addRandomSuffix: true,
-  });
-
-  return NextResponse.json({ url: blob.url });
 }
