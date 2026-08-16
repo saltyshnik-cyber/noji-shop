@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { ensureSchema, sql } from "@/lib/db";
 import AdminNav from "@/components/admin/AdminNav";
 import ProductForm from "@/components/admin/ProductForm";
-import ProductImagesManager from "@/components/admin/ProductImagesManager";
 
 export const dynamic = "force-dynamic";
 
@@ -64,15 +63,8 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
           handle_material: product.handle_material,
           in_stock: product.in_stock,
         }}
+        initialImages={images}
       />
-
-      <div className="mt-10 border-t border-gray-200 pt-6">
-        <h2 className="mb-1 text-lg font-semibold">Дополнительные фото</h2>
-        <p className="mb-4 text-sm text-gray-500">
-          Показываются в галерее товара вместе с главным фото выше. Не заменяют главное фото.
-        </p>
-        <ProductImagesManager productId={product.id} initialImages={images} />
-      </div>
     </div>
   );
 }

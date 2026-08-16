@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { uploadPhoto } from "@/lib/uploadPhoto";
+import ProductPhotoSection from "@/components/admin/ProductPhotoSection";
 
 type Category = { id: number; name: string };
+type ProductImage = { id: number; url: string; sort_order: number };
 
 type ProductData = {
   name: string;
@@ -35,11 +36,13 @@ export default function ProductForm({
   productId,
   categories,
   initial,
+  initialImages,
 }: {
   mode: "create" | "edit";
   productId?: number;
   categories: Category[];
   initial?: Partial<ProductData>;
+  initialImages?: ProductImage[];
 }) {
   const router = useRouter();
   const [data, setData] = useState<ProductData>({ ...EMPTY, ...initial });
@@ -50,19 +53,6 @@ export default function ProductForm({
 
   function update<K extends keyof ProductData>(key: K, value: ProductData[K]) {
     setData((d) => ({ ...d, [key]: value }));
-  }
-
-  async function handlePhotoUpload(file: File) {
-    setUploading(true);
-    setError(null);
-    try {
-      const url = await uploadPhoto(file);
-      update("photo_url", url);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Не удалось загрузить фото");
-    } finally {
-      setUploading(false);
-    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -137,23 +127,13 @@ export default function ProductForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div>
-        <label className="mb-1 block text-sm font-medium">Фото</label>
-        {data.photo_url && (
-          <img src={data.photo_url} alt="" className="mb-2 h-40 w-32 rounded border border-gray-200 object-cover" />
-        )}
-        <input
-          type="file"
-          accept="image/*"
-          disabled={uploading}
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) handlePhotoUpload(file);
-          }}
-          className="block text-sm"
-        />
-        {uploading && <p className="mt-1 text-sm text-gray-500">Загрузка фото…</p>}
-      </div>
+      <ProductPhotoSection
+        productId={productId}
+        photoUrl={data.photo_url}
+        onPhotoUrlChange={(url) => update("photo_url", url)}
+        initialImages={initialImages ?? []}
+        onUploadingChange={setUploading}
+      />
 
       <div>
         <label className="mb-1 block text-sm font-medium" htmlFor="name">

@@ -1,26 +1,96 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { uploadPhoto } from "@/lib/uploadPhoto";
 
 type ProductImage = { id: number; url: string; sort_order: number };
 
-export default function ProductImagesManager({
-  productId,
-  initialImages,
+function PlusIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+function CustomFileButton({
+  label,
+  disabled,
+  onFile,
 }: {
-  productId: number;
+  label: string;
+  disabled: boolean;
+  onFile: (file: File) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => inputRef.current?.click()}
+        className="w-fit rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition hover:border-red-400 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        {label}
+      </button>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        disabled={disabled}
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) onFile(file);
+          e.target.value = "";
+        }}
+      />
+    </>
+  );
+}
+
+export default function ProductPhotoSection({
+  productId,
+  photoUrl,
+  onPhotoUrlChange,
+  initialImages,
+  onUploadingChange,
+}: {
+  productId?: number;
+  photoUrl: string;
+  onPhotoUrlChange: (url: string) => void;
   initialImages: ProductImage[];
+  onUploadingChange?: (uploading: boolean) => void;
 }) {
   const router = useRouter();
-  const [images, setImages] = useState<ProductImage[]>(initialImages);
-  const [uploading, setUploading] = useState(false);
+  const [uploadingMain, setUploadingMain] = useState(false);
+  const [uploadingExtra, setUploadingExtra] = useState(false);
   const [busyId, setBusyId] = useState<number | null>(null);
+  const [images, setImages] = useState<ProductImage[]>(initialImages);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleAdd(file: File) {
-    setUploading(true);
+  useEffect(() => {
+    onUploadingChange?.(uploadingMain || uploadingExtra);
+  }, [uploadingMain, uploadingExtra, onUploadingChange]);
+
+  async function handleMainUpload(file: File) {
+    setUploadingMain(true);
+    setError(null);
+    try {
+      const url = await uploadPhoto(file);
+      onPhotoUrlChange(url);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Не удалось загрузить фото");
+    } finally {
+      setUploadingMain(false);
+    }
+  }
+
+  async function handleExtraAdd(file: File) {
+    if (!productId) return;
+    setUploadingExtra(true);
     setError(null);
     try {
       const url = await uploadPhoto(file);
@@ -40,7 +110,7 @@ export default function ProductImagesManager({
     } catch (e) {
       setError(e instanceof Error ? e.message : "Не удалось загрузить фото");
     } finally {
-      setUploading(false);
+      setUploadingExtra(false);
     }
   }
 
@@ -98,8 +168,54 @@ export default function ProductImagesManager({
   const sorted = [...images].sort((a, b) => a.sort_order - b.sort_order);
 
   return (
-    <div className="flex flex-col gap-3">
-      {sorted.length > 0 && (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+        <div className="flex w-fit flex-col gap-2">
+          <label className="block text-sm font-medium">Главное фото</label>
+          <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded border border-gray-200 bg-gray-50 sm:h-40 sm:w-32">
+            {photoUrl ? (
+              <img src={photoUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span className="px-2 text-center text-xs text-gray-400">Нет фото</span>
+            )}
+          </div>
+          <CustomFileButton
+            label={uploadingMain ? "Загрузка…" : "Изменить фото"}
+            disabled={uploadingMain}
+            onFile={handleMainUpload}
+          />
+        </div>
+
+        {productId && (
+          <label
+            className={`flex h-28 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded border-2 border-dashed border-gray-300 text-center text-gray-500 transition hover:border-red-400 hover:text-red-600 sm:h-40 ${
+              uploadingExtra ? "pointer-events-none opacity-60" : ""
+            }`}
+          >
+            <PlusIcon />
+            <span className="text-sm font-medium">{uploadingExtra ? "Загрузка…" : "Добавить доп. фото"}</span>
+            <input
+              type="file"
+              accept="image/*"
+              disabled={uploadingExtra}
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleExtraAdd(file);
+                e.target.value = "";
+              }}
+            />
+          </label>
+        )}
+      </div>
+
+      {productId && (
+        <p className="-mt-2 text-xs text-gray-500">
+          Доп. фото показываются в галерее товара вместе с главным фото. Не заменяют главное фото.
+        </p>
+      )}
+
+      {productId && sorted.length > 0 && (
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
           {sorted.map((img, i) => (
             <div key={img.id} className="flex flex-col gap-1">
@@ -134,22 +250,6 @@ export default function ProductImagesManager({
           ))}
         </div>
       )}
-
-      <div>
-        <label className="mb-1 block text-sm font-medium">Добавить фото</label>
-        <input
-          type="file"
-          accept="image/*"
-          disabled={uploading}
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) handleAdd(file);
-            e.target.value = "";
-          }}
-          className="block text-sm"
-        />
-        {uploading && <p className="mt-1 text-sm text-gray-500">Загрузка…</p>}
-      </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
     </div>
