@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { ensureSchema, sql } from "@/lib/db";
 import AdminNav from "@/components/admin/AdminNav";
 import ProductForm from "@/components/admin/ProductForm";
+import ProductImagesManager from "@/components/admin/ProductImagesManager";
 
 export const dynamic = "force-dynamic";
 
@@ -28,11 +29,17 @@ async function getProduct(id: string): Promise<ProductRow | null> {
   return (rows[0] as ProductRow | undefined) ?? null;
 }
 
+async function getProductImages(id: string) {
+  return (await sql`
+    SELECT id, url, sort_order FROM product_images WHERE product_id = ${id} ORDER BY sort_order
+  `) as { id: number; url: string; sort_order: number }[];
+}
+
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   await ensureSchema();
 
-  const [product, categories] = await Promise.all([getProduct(id), getCategories()]);
+  const [product, categories, images] = await Promise.all([getProduct(id), getCategories(), getProductImages(id)]);
 
   if (!product) {
     notFound();
@@ -58,6 +65,14 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
           in_stock: product.in_stock,
         }}
       />
+
+      <div className="mt-10 border-t border-gray-200 pt-6">
+        <h2 className="mb-1 text-lg font-semibold">Дополнительные фото</h2>
+        <p className="mb-4 text-sm text-gray-500">
+          Показываются в галерее товара вместе с главным фото выше. Не заменяют главное фото.
+        </p>
+        <ProductImagesManager productId={product.id} initialImages={images} />
+      </div>
     </div>
   );
 }

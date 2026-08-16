@@ -149,13 +149,13 @@ function HeroSection({ heroImageUrl, shopName, shopSubtitle }: { heroImageUrl: s
           </a>
 
           <p className="mt-6 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
-            Сталь · Точность · Надёжность каждой детали
+            Стиль · Точность · Надёжность каждой детали
           </p>
 
           <h1 className="mt-3 text-4xl font-black uppercase leading-tight text-white sm:text-6xl">
-            Нож с <span className="text-red-600">характером</span>,
+            Ножи с <span className="text-red-600">характером</span>,
             <br />
-            кован вручную
+            сделано вручную
           </h1>
 
           <p className="mt-4 max-w-md text-lg text-slate-300">

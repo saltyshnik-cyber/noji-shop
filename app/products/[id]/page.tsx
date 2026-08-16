@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ensureSchema, sql } from "@/lib/db";
 import { AddToCartButton } from "@/components/AddToCartButton";
+import { ProductGallery } from "@/components/ProductGallery";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,13 @@ async function getProduct(id: string): Promise<ProductRow | null> {
   return (rows[0] as ProductRow | undefined) ?? null;
 }
 
+async function getExtraImages(id: string): Promise<string[]> {
+  const rows = (await sql`
+    SELECT url FROM product_images WHERE product_id = ${id} ORDER BY sort_order
+  `) as { url: string }[];
+  return rows.map((r) => r.url);
+}
+
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const product = await getProduct(id);
@@ -48,6 +56,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   if (!product) {
     notFound();
   }
+
+  const extraImages = await getExtraImages(id);
+  const galleryImages = [product.photo_url, ...extraImages].filter(Boolean);
 
   return (
     <main className="min-w-0">
@@ -57,9 +68,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         </Link>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          <div className="aspect-[4/5] w-full overflow-hidden rounded-lg border border-gray-200">
-            <img src={product.photo_url} alt={product.name} className="h-full w-full object-cover object-center" />
-          </div>
+          <ProductGallery images={galleryImages} alt={product.name} />
 
           <div className="flex flex-col gap-3">
             <div className="flex items-start justify-between gap-2">
