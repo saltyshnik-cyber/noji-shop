@@ -4,6 +4,7 @@ import { AddToCartButton } from "@/components/AddToCartButton";
 import { CategoryNav } from "@/components/CategoryNav";
 import { CATEGORY_SECTIONS } from "@/lib/categoryNav";
 import { FloatingCartButton } from "@/components/FloatingCartButton";
+import { isVideoUrl } from "@/lib/mediaType";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,7 @@ type ProductRow = {
   description: string;
   price: string;
   photo_url: string;
+  fallback_image_url: string | null;
   category_name: string | null;
   steel: string;
   blade_length_mm: number | null;
@@ -29,6 +31,11 @@ async function getProducts(): Promise<ProductRow[]> {
       products.description,
       products.price,
       products.photo_url,
+      (
+        SELECT pi.url FROM product_images pi
+        WHERE pi.product_id = products.id AND pi.type = 'image'
+        ORDER BY pi.sort_order LIMIT 1
+      ) AS fallback_image_url,
       categories.name AS category_name,
       products.steel,
       products.blade_length_mm,
@@ -42,11 +49,13 @@ async function getProducts(): Promise<ProductRow[]> {
 }
 
 function ProductCard({ p }: { p: ProductRow }) {
+  const cardImage = isVideoUrl(p.photo_url) ? (p.fallback_image_url ?? p.photo_url) : p.photo_url;
+
   return (
     <div className="flex flex-col overflow-hidden rounded-lg bg-neutral-900 transition hover:shadow-lg hover:shadow-red-900/40">
       <Link href={`/products/${p.id}`} className="flex flex-1 flex-col">
         <div className="aspect-[4/5] w-full">
-          <img src={p.photo_url} alt={p.name} className="h-full w-full object-cover object-center" />
+          <img src={cardImage} alt={p.name} className="h-full w-full object-cover object-center" />
         </div>
         <div className="flex flex-1 flex-col gap-2 p-4">
           <div className="flex items-start justify-between gap-2">

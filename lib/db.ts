@@ -74,8 +74,13 @@ export function ensureSchema(): Promise<void> {
           id SERIAL PRIMARY KEY,
           product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
           url TEXT NOT NULL,
-          sort_order INTEGER NOT NULL DEFAULT 0
+          sort_order INTEGER NOT NULL DEFAULT 0,
+          type TEXT NOT NULL DEFAULT 'image' CHECK (type IN ('image', 'video'))
         )
+      `;
+      await sql`
+        ALTER TABLE product_images
+        ADD COLUMN IF NOT EXISTS type TEXT NOT NULL DEFAULT 'image' CHECK (type IN ('image', 'video'))
       `;
     })();
   }

@@ -42,11 +42,13 @@ async function getProduct(id: string): Promise<ProductRow | null> {
   return (rows[0] as ProductRow | undefined) ?? null;
 }
 
-async function getExtraImages(id: string): Promise<string[]> {
+type GalleryItem = { url: string; type: "image" | "video" };
+
+async function getExtraImages(id: string): Promise<GalleryItem[]> {
   const rows = (await sql`
-    SELECT url FROM product_images WHERE product_id = ${id} ORDER BY sort_order
-  `) as { url: string }[];
-  return rows.map((r) => r.url);
+    SELECT url, type FROM product_images WHERE product_id = ${id} ORDER BY sort_order
+  `) as GalleryItem[];
+  return rows;
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
@@ -58,7 +60,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   }
 
   const extraImages = await getExtraImages(id);
-  const galleryImages = [product.photo_url, ...extraImages].filter(Boolean);
+  const galleryImages: GalleryItem[] = [
+    ...(product.photo_url ? [{ url: product.photo_url, type: "image" as const }] : []),
+    ...extraImages,
+  ];
 
   return (
     <main className="min-w-0">

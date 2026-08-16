@@ -2,10 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import ProductPhotoSection from "@/components/admin/ProductPhotoSection";
+import ProductPhotoSection, { type ProductImage } from "@/components/admin/ProductPhotoSection";
 
 type Category = { id: number; name: string };
-type ProductImage = { id: number; url: string; sort_order: number };
 
 type ProductData = {
   name: string;

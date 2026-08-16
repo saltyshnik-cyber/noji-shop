@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { uploadPhoto } from "@/lib/uploadPhoto";
+import { ALLOWED_VIDEO_MIME_TYPES, MAX_MEDIA_BYTES, getMediaKind } from "@/lib/mediaType";
 
-type ProductImage = { id: number; url: string; sort_order: number };
+export type ProductImage = { id: number; url: string; sort_order: number; type: "image" | "video" };
 
 function PlusIcon() {
   return (
@@ -13,6 +14,26 @@ function PlusIcon() {
     </svg>
   );
 }
+
+function PlayIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+      <path d="M8 5v14l11-7z" />
+    </svg>
+  );
+}
+
+function VideoThumbBadge() {
+  return (
+    <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/20">
+      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-black">
+        <PlayIcon />
+      </div>
+    </div>
+  );
+}
+
+const MAX_MEDIA_MB = Math.round(MAX_MEDIA_BYTES / (1024 * 1024));
 
 function CustomFileButton({
   label,
@@ -90,6 +111,22 @@ export default function ProductPhotoSection({
 
   async function handleExtraAdd(file: File) {
     if (!productId) return;
+
+    const kind = getMediaKind(file);
+    if (!kind) {
+      setError("Неподдерживаемый тип файла. Разрешены изображения или видео (MP4, WebM).");
+      return;
+    }
+    if (kind === "video" && !ALLOWED_VIDEO_MIME_TYPES.includes(file.type)) {
+      setError("Неподдерживаемый формат видео. Разрешены только MP4 и WebM.");
+      return;
+    }
+    if (file.size > MAX_MEDIA_BYTES) {
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+      setError(`Файл слишком большой (${sizeMb} МБ). Максимальный размер — ${MAX_MEDIA_MB} МБ.`);
+      return;
+    }
+
     setUploadingExtra(true);
     setError(null);
     try {
@@ -98,7 +135,7 @@ export default function ProductPhotoSection({
       const res = await fetch(`/api/admin/products/${productId}/images`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, type: kind }),
       });
       const json = await res.json();
       if (!res.ok) {
@@ -193,10 +230,10 @@ export default function ProductPhotoSection({
             }`}
           >
             <PlusIcon />
-            <span className="text-sm font-medium">{uploadingExtra ? "Загрузка…" : "Добавить доп. фото"}</span>
+            <span className="text-sm font-medium">{uploadingExtra ? "Загрузка…" : "Добавить доп. фото/видео"}</span>
             <input
               type="file"
-              accept="image/*"
+              accept="image/*,video/mp4,video/webm"
               disabled={uploadingExtra}
               className="hidden"
               onChange={(e) => {
@@ -211,7 +248,8 @@ export default function ProductPhotoSection({
 
       {productId && (
         <p className="-mt-2 text-xs text-gray-500">
-          Доп. фото показываются в галерее товара вместе с главным фото. Не заменяют главное фото.
+          Доп. фото и видео показываются в галерее товара вместе с главным фото. Не заменяют главное фото. Видео —
+          MP4 или WebM, до {MAX_MEDIA_MB} МБ.
         </p>
       )}
 
@@ -219,7 +257,16 @@ export default function ProductPhotoSection({
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
           {sorted.map((img, i) => (
             <div key={img.id} className="flex flex-col gap-1">
-              <img src={img.url} alt="" className="aspect-[4/5] w-full rounded border border-gray-200 object-cover" />
+              <div className="relative aspect-[4/5] w-full overflow-hidden rounded border border-gray-200">
+                {img.type === "video" ? (
+                  <>
+                    <video src={img.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+                    <VideoThumbBadge />
+                  </>
+                ) : (
+                  <img src={img.url} alt="" className="h-full w-full object-cover" />
+                )}
+              </div>
               <div className="flex items-center justify-between text-xs">
                 <button
                   type="button"

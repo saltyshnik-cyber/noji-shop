@@ -30,8 +30,8 @@ async function getProduct(id: string): Promise<ProductRow | null> {
 
 async function getProductImages(id: string) {
   return (await sql`
-    SELECT id, url, sort_order FROM product_images WHERE product_id = ${id} ORDER BY sort_order
-  `) as { id: number; url: string; sort_order: number }[];
+    SELECT id, url, sort_order, type FROM product_images WHERE product_id = ${id} ORDER BY sort_order
+  `) as { id: number; url: string; sort_order: number; type: "image" | "video" }[];
 }
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
