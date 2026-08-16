@@ -188,7 +188,7 @@ export default function ProductPhotoSection({
 
         {productId && (
           <label
-            className={`flex h-28 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded border-2 border-dashed border-gray-300 text-center text-gray-500 transition hover:border-red-400 hover:text-red-600 sm:h-40 ${
+            className={`flex h-28 w-full shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded border-2 border-dashed border-gray-300 text-center text-gray-500 transition hover:border-red-400 hover:text-red-600 sm:h-40 sm:w-auto sm:flex-1 ${
               uploadingExtra ? "pointer-events-none opacity-60" : ""
             }`}
           >
