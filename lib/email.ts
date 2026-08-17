@@ -12,6 +12,9 @@ type OrderForEmail = {
   phone: string;
   email: string | null;
   total: number;
+  deliveryCity: string;
+  deliveryMethod: string;
+  deliveryPrice: number;
   items: OrderItemForEmail[];
 };
 
@@ -50,12 +53,14 @@ export async function sendNewOrderEmail(order: OrderForEmail): Promise<void> {
         </thead>
         <tbody>${itemsHtml}</tbody>
       </table>
+      <p>Доставка (${order.deliveryMethod}): ${order.deliveryPrice.toLocaleString("ru-RU")} ₽</p>
       <p style="font-weight:bold;font-size:16px;">Итого: ${order.total.toLocaleString("ru-RU")} ₽</p>
       <h3>Клиент</h3>
       <p>
         Имя: ${order.customerName}<br/>
         Телефон: ${order.phone}<br/>
         ${order.email ? `Email: ${order.email}<br/>` : ""}
+        Город доставки: ${order.deliveryCity}<br/>
       </p>
     </div>
   `;

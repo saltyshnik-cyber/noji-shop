@@ -1,12 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
 import { isBlank, isValidEmail, isValidPhone } from "@/lib/validation";
 
 export const dynamic = "force-dynamic";
+
+// Параметры упаковки по умолчанию для расчёта доставки СДЭК (усреднённые для ножа).
+// TODO: сделать динамическим на основе фактических товаров в корзине.
+const DEFAULT_PACKAGE = { weight: 500, length: 20, width: 15, height: 5 };
+
+type CdekTariff = {
+  tariffCode: number;
+  name: string;
+  description: string | null;
+  price: number;
+  periodMinDays: number;
+  periodMaxDays: number;
+};
+
+function Spinner() {
+  return (
+    <svg className="h-4 w-4 animate-spin text-gray-400" viewBox="0 0 24 24" fill="none">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+    </svg>
+  );
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -15,9 +37,25 @@ export default function CheckoutPage() {
   const [customerName, setCustomerName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [errors, setErrors] = useState<{ customerName?: string; phone?: string; email?: string }>({});
+  const [city, setCity] = useState("");
+  const [errors, setErrors] = useState<{
+    customerName?: string;
+    phone?: string;
+    email?: string;
+    city?: string;
+    tariff?: string;
+  }>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const [tariffs, setTariffs] = useState<CdekTariff[] | null>(null);
+  const [selectedTariff, setSelectedTariff] = useState<CdekTariff | null>(null);
+  const [loadingTariffs, setLoadingTariffs] = useState(false);
+  const [tariffError, setTariffError] = useState<string | null>(null);
+  const lastFetchedCity = useRef("");
+
+  const deliveryPrice = selectedTariff?.price ?? 0;
+  const grandTotal = totalPrice + deliveryPrice;
 
   if (items.length === 0) {
     return (
@@ -35,11 +73,51 @@ export default function CheckoutPage() {
     );
   }
 
+  async function fetchTariffs(rawCity: string) {
+    const targetCity = rawCity.trim();
+    setLoadingTariffs(true);
+    setTariffError(null);
+    setTariffs(null);
+    setSelectedTariff(null);
+    try {
+      const res = await fetch("/api/cdek/calculate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to_city: targetCity, ...DEFAULT_PACKAGE }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setTariffError(data.error ?? "Не удалось рассчитать стоимость доставки");
+        return;
+      }
+      setTariffs(data.tariffs ?? []);
+    } catch {
+      setTariffError("Не удалось рассчитать доставку. Проверьте соединение.");
+    } finally {
+      setLoadingTariffs(false);
+    }
+  }
+
+  function handleCityBlur() {
+    const trimmed = city.trim();
+    if (isBlank(trimmed)) return;
+    if (trimmed === lastFetchedCity.current && (tariffs !== null || loadingTariffs)) return;
+    lastFetchedCity.current = trimmed;
+    fetchTariffs(trimmed);
+  }
+
   function validate(): boolean {
     const next: typeof errors = {};
     if (isBlank(customerName)) next.customerName = "Введите имя";
     if (!isValidPhone(phone)) next.phone = "Формат: +7XXXXXXXXXX";
     if (email && !isValidEmail(email)) next.email = "Некорректный email";
+    if (isBlank(city)) {
+      next.city = "Введите город доставки";
+    } else if (loadingTariffs) {
+      next.tariff = "Дождитесь расчёта стоимости доставки";
+    } else if (!selectedTariff) {
+      next.tariff = "Выберите способ доставки";
+    }
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -59,6 +137,9 @@ export default function CheckoutPage() {
           phone,
           email: email || undefined,
           items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+          city,
+          deliveryMethod: selectedTariff!.name,
+          deliveryPrice: selectedTariff!.price,
         }),
       });
       const data = await res.json();
@@ -89,9 +170,15 @@ export default function CheckoutPage() {
               <span>{(item.price * item.quantity).toLocaleString("ru-RU")} ₽</span>
             </div>
           ))}
+          {selectedTariff && (
+            <div className="flex justify-between py-1 text-sm">
+              <span>Доставка: {selectedTariff.name}</span>
+              <span>{deliveryPrice.toLocaleString("ru-RU")} ₽</span>
+            </div>
+          )}
           <div className="mt-2 flex justify-between border-t border-gray-200 pt-2 font-bold">
             <span>Итого</span>
-            <span>{totalPrice.toLocaleString("ru-RU")} ₽</span>
+            <span>{grandTotal.toLocaleString("ru-RU")} ₽</span>
           </div>
         </div>
 
@@ -135,6 +222,67 @@ export default function CheckoutPage() {
               className="w-full rounded border border-gray-300 px-3 py-2"
             />
             {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium" htmlFor="city">
+              Город доставки
+            </label>
+            <input
+              id="city"
+              placeholder="Москва"
+              value={city}
+              onChange={(e) => {
+                setCity(e.target.value);
+                setTariffs(null);
+                setSelectedTariff(null);
+                setTariffError(null);
+              }}
+              onBlur={handleCityBlur}
+              className="w-full rounded border border-gray-300 px-3 py-2"
+            />
+            {errors.city && <p className="mt-1 text-sm text-red-600">{errors.city}</p>}
+            {tariffError && <p className="mt-1 text-sm text-red-600">{tariffError}</p>}
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium">Способ доставки</label>
+
+            {loadingTariffs && (
+              <div className="flex items-center gap-2 py-1 text-sm text-gray-500">
+                <Spinner />
+                Расчёт стоимости доставки…
+              </div>
+            )}
+
+            {!loadingTariffs && tariffs && tariffs.length > 0 && (
+              <div className="flex flex-col gap-2">
+                {tariffs.map((t) => (
+                  <label
+                    key={t.tariffCode}
+                    className="flex cursor-pointer items-center justify-between gap-3 rounded border border-gray-300 px-3 py-2 text-sm transition has-[:checked]:border-red-600 has-[:checked]:bg-red-50"
+                  >
+                    <span className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="deliveryTariff"
+                        checked={selectedTariff?.tariffCode === t.tariffCode}
+                        onChange={() => setSelectedTariff(t)}
+                      />
+                      {t.name}
+                    </span>
+                    <span className="whitespace-nowrap font-medium">
+                      {t.price.toLocaleString("ru-RU")} ₽,{" "}
+                      {t.periodMinDays === t.periodMaxDays
+                        ? `${t.periodMinDays} дн.`
+                        : `${t.periodMinDays}-${t.periodMaxDays} дн.`}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            )}
+
+            {errors.tariff && <p className="mt-1 text-sm text-red-600">{errors.tariff}</p>}
           </div>
 
           {submitError && <p className="text-sm text-red-600">{submitError}</p>}

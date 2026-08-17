@@ -13,6 +13,9 @@ type OrderRow = {
   status: OrderStatus;
   created_at: string;
   total: string;
+  delivery_city: string;
+  delivery_method: string;
+  delivery_price: string;
 };
 
 type OrderItemRow = {
@@ -26,7 +29,7 @@ async function getOrdersWithItems() {
   await ensureSchema();
 
   const orders = (await sql`
-    SELECT id, customer_name, phone, email, status, created_at, total
+    SELECT id, customer_name, phone, email, status, created_at, total, delivery_city, delivery_method, delivery_price
     FROM orders
     ORDER BY created_at DESC
   `) as OrderRow[];
@@ -77,6 +80,7 @@ export default async function AdminOrdersPage() {
                   {order.customer_name} · {order.phone}
                 </div>
                 {order.email && <div>{order.email}</div>}
+                {order.delivery_city && <div>Город: {order.delivery_city}</div>}
               </div>
 
               <ul className="mt-3 space-y-1 text-sm text-gray-600">
@@ -85,6 +89,11 @@ export default async function AdminOrdersPage() {
                     {item.product_name} × {item.quantity} — {(Number(item.price) * item.quantity).toLocaleString("ru-RU")} ₽
                   </li>
                 ))}
+                {order.delivery_method && (
+                  <li>
+                    Доставка: {order.delivery_method} — {Number(order.delivery_price).toLocaleString("ru-RU")} ₽
+                  </li>
+                )}
               </ul>
 
               <div className="mt-3 flex items-center justify-end border-t border-gray-100 pt-3 text-sm">

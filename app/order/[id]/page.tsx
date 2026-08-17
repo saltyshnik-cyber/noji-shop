@@ -12,6 +12,9 @@ type OrderRow = {
   status: string;
   created_at: string;
   total: string;
+  delivery_city: string;
+  delivery_method: string;
+  delivery_price: string;
 };
 
 type OrderItemRow = {
@@ -63,6 +66,12 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
               <span>{(Number(item.price) * item.quantity).toLocaleString("ru-RU")} ₽</span>
             </div>
           ))}
+          {order.delivery_method && (
+            <div className="flex justify-between py-1 text-sm">
+              <span>Доставка: {order.delivery_method}</span>
+              <span>{Number(order.delivery_price).toLocaleString("ru-RU")} ₽</span>
+            </div>
+          )}
           <div className="mt-2 flex justify-between border-t border-gray-200 pt-2 font-bold">
             <span>Итого</span>
             <span>{Number(order.total).toLocaleString("ru-RU")} ₽</span>
@@ -82,6 +91,12 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             <div>
               <dt className="inline font-medium">Email: </dt>
               <dd className="inline">{order.email}</dd>
+            </div>
+          )}
+          {order.delivery_city && (
+            <div>
+              <dt className="inline font-medium">Город доставки: </dt>
+              <dd className="inline">{order.delivery_city}</dd>
             </div>
           )}
         </dl>

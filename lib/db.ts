@@ -51,9 +51,15 @@ export function ensureSchema(): Promise<void> {
           email TEXT,
           status TEXT NOT NULL DEFAULT 'новый',
           created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-          total NUMERIC(10, 2) NOT NULL DEFAULT 0
+          total NUMERIC(10, 2) NOT NULL DEFAULT 0,
+          delivery_city TEXT NOT NULL DEFAULT '',
+          delivery_method TEXT NOT NULL DEFAULT '',
+          delivery_price NUMERIC(10, 2) NOT NULL DEFAULT 0
         )
       `;
+      await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_city TEXT NOT NULL DEFAULT ''`;
+      await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_method TEXT NOT NULL DEFAULT ''`;
+      await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_price NUMERIC(10, 2) NOT NULL DEFAULT 0`;
       await sql`
         CREATE TABLE IF NOT EXISTS order_items (
           id SERIAL PRIMARY KEY,
