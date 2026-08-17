@@ -15,6 +15,7 @@ type OrderForEmail = {
   deliveryCity: string;
   deliveryMethod: string;
   deliveryPrice: number;
+  deliveryPvzAddress: string | null;
   items: OrderItemForEmail[];
 };
 
@@ -61,6 +62,7 @@ export async function sendNewOrderEmail(order: OrderForEmail): Promise<void> {
         Телефон: ${order.phone}<br/>
         ${order.email ? `Email: ${order.email}<br/>` : ""}
         Город доставки: ${order.deliveryCity}<br/>
+        ${order.deliveryPvzAddress ? `Пункт выдачи: ${order.deliveryPvzAddress}<br/>` : ""}
       </p>
     </div>
   `;

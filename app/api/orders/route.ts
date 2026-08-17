@@ -16,6 +16,9 @@ type OrderPayload = {
   city: string;
   deliveryMethod: string;
   deliveryPrice: number;
+  deliveryType: "door" | "pvz";
+  pvzAddress?: string;
+  pvzCode?: string;
 };
 
 export async function POST(request: Request) {
@@ -42,6 +45,10 @@ export async function POST(request: Request) {
 
   if (isBlank(payload.deliveryMethod) || !(Number(payload.deliveryPrice) >= 0)) {
     return NextResponse.json({ error: "Выберите способ доставки" }, { status: 400 });
+  }
+
+  if (payload.deliveryType === "pvz" && (isBlank(payload.pvzAddress) || isBlank(payload.pvzCode))) {
+    return NextResponse.json({ error: "Выберите пункт выдачи" }, { status: 400 });
   }
 
   if (!payload.items?.length) {
@@ -85,10 +92,14 @@ export async function POST(request: Request) {
   const total = itemsTotal + deliveryPrice;
 
   const [order] = await sql`
-    INSERT INTO orders (customer_name, phone, email, status, total, delivery_city, delivery_method, delivery_price)
+    INSERT INTO orders (
+      customer_name, phone, email, status, total,
+      delivery_city, delivery_method, delivery_price, delivery_pvz_address, delivery_pvz_code
+    )
     VALUES (
       ${payload.customerName}, ${payload.phone}, ${payload.email ?? null}, 'новый', ${total},
-      ${payload.city}, ${payload.deliveryMethod}, ${deliveryPrice}
+      ${payload.city}, ${payload.deliveryMethod}, ${deliveryPrice},
+      ${payload.pvzAddress ?? ""}, ${payload.pvzCode ?? ""}
     )
     RETURNING id
   `;
@@ -110,6 +121,7 @@ export async function POST(request: Request) {
     deliveryCity: payload.city,
     deliveryMethod: payload.deliveryMethod,
     deliveryPrice,
+    deliveryPvzAddress: payload.pvzAddress ?? null,
     items: payload.items.map((item) => ({
       name: productById.get(item.productId)!.name,
       quantity: item.quantity,

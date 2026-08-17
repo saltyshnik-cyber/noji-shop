@@ -16,6 +16,7 @@ type OrderRow = {
   delivery_city: string;
   delivery_method: string;
   delivery_price: string;
+  delivery_pvz_address: string;
 };
 
 type OrderItemRow = {
@@ -29,7 +30,9 @@ async function getOrdersWithItems() {
   await ensureSchema();
 
   const orders = (await sql`
-    SELECT id, customer_name, phone, email, status, created_at, total, delivery_city, delivery_method, delivery_price
+    SELECT
+      id, customer_name, phone, email, status, created_at, total,
+      delivery_city, delivery_method, delivery_price, delivery_pvz_address
     FROM orders
     ORDER BY created_at DESC
   `) as OrderRow[];
@@ -94,6 +97,7 @@ export default async function AdminOrdersPage() {
                     Доставка: {order.delivery_method} — {Number(order.delivery_price).toLocaleString("ru-RU")} ₽
                   </li>
                 )}
+                {order.delivery_pvz_address && <li>Пункт выдачи: {order.delivery_pvz_address}</li>}
               </ul>
 
               <div className="mt-3 flex items-center justify-end border-t border-gray-100 pt-3 text-sm">

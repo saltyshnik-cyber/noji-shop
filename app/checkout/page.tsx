@@ -19,6 +19,16 @@ type CdekTariff = {
   price: number;
   periodMinDays: number;
   periodMaxDays: number;
+  kind: "door" | "pvz";
+};
+
+type CdekPvz = {
+  code: string;
+  name: string | null;
+  address: string | null;
+  phone: string | null;
+  workTime: string | null;
+  coordinates: { lat: number; lon: number } | null;
 };
 
 function Spinner() {
@@ -44,6 +54,7 @@ export default function CheckoutPage() {
     email?: string;
     city?: string;
     tariff?: string;
+    pvz?: string;
   }>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -53,6 +64,14 @@ export default function CheckoutPage() {
   const [loadingTariffs, setLoadingTariffs] = useState(false);
   const [tariffError, setTariffError] = useState<string | null>(null);
   const lastFetchedCity = useRef("");
+
+  const [pvzList, setPvzList] = useState<CdekPvz[] | null>(null);
+  const [selectedPvz, setSelectedPvz] = useState<CdekPvz | null>(null);
+  const [loadingPvz, setLoadingPvz] = useState(false);
+  const [pvzError, setPvzError] = useState<string | null>(null);
+  // Отдельно от pvzError: этот текст должен пережить удаление варианта "самовывоз"
+  // из списка тарифов, а не исчезнуть вместе с ним в том же рендере.
+  const [noPvzMessage, setNoPvzMessage] = useState<string | null>(null);
 
   const deliveryPrice = selectedTariff?.price ?? 0;
   const grandTotal = totalPrice + deliveryPrice;
@@ -79,6 +98,10 @@ export default function CheckoutPage() {
     setTariffError(null);
     setTariffs(null);
     setSelectedTariff(null);
+    setPvzList(null);
+    setSelectedPvz(null);
+    setPvzError(null);
+    setNoPvzMessage(null);
     try {
       const res = await fetch("/api/cdek/calculate", {
         method: "POST",
@@ -98,12 +121,54 @@ export default function CheckoutPage() {
     }
   }
 
+  async function fetchPvzList(targetCity: string) {
+    setLoadingPvz(true);
+    setPvzError(null);
+    setPvzList(null);
+    try {
+      const res = await fetch(`/api/cdek/pvz?city=${encodeURIComponent(targetCity)}`);
+      const data = await res.json();
+      if (!res.ok) {
+        setPvzError(data.error ?? "Не удалось загрузить пункты выдачи");
+        return;
+      }
+      const points: CdekPvz[] = data.points ?? [];
+      if (points.length === 0) {
+        // В городе нет ПВЗ — прячем вариант самовывоза, остаётся только курьер.
+        // Сообщение живёт в отдельном состоянии (noPvzMessage), а не в pvzError,
+        // иначе оно исчезло бы в том же рендере, где пропадает сам вариант "самовывоз".
+        setNoPvzMessage("В этом городе нет пунктов выдачи, доступна только доставка курьером");
+        setSelectedTariff(null);
+        setTariffs((prev) => (prev ? prev.filter((t) => t.kind !== "pvz") : prev));
+        return;
+      }
+      setPvzList(points);
+    } catch {
+      setPvzError("Не удалось загрузить пункты выдачи. Проверьте соединение.");
+    } finally {
+      setLoadingPvz(false);
+    }
+  }
+
   function handleCityBlur() {
     const trimmed = city.trim();
     if (isBlank(trimmed)) return;
     if (trimmed === lastFetchedCity.current && (tariffs !== null || loadingTariffs)) return;
     lastFetchedCity.current = trimmed;
     fetchTariffs(trimmed);
+  }
+
+  function handleSelectTariff(t: CdekTariff) {
+    setSelectedTariff(t);
+    setErrors((prev) => ({ ...prev, tariff: undefined }));
+    if (t.kind === "pvz") {
+      setSelectedPvz(null);
+      fetchPvzList(city.trim());
+    } else {
+      setPvzList(null);
+      setSelectedPvz(null);
+      setPvzError(null);
+    }
   }
 
   function validate(): boolean {
@@ -117,6 +182,9 @@ export default function CheckoutPage() {
       next.tariff = "Дождитесь расчёта стоимости доставки";
     } else if (!selectedTariff) {
       next.tariff = "Выберите способ доставки";
+    } else if (selectedTariff.kind === "pvz") {
+      if (loadingPvz) next.pvz = "Дождитесь загрузки пунктов выдачи";
+      else if (!selectedPvz) next.pvz = "Выберите пункт выдачи";
     }
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -140,6 +208,9 @@ export default function CheckoutPage() {
           city,
           deliveryMethod: selectedTariff!.name,
           deliveryPrice: selectedTariff!.price,
+          deliveryType: selectedTariff!.kind,
+          pvzAddress: selectedTariff!.kind === "pvz" ? selectedPvz!.address : undefined,
+          pvzCode: selectedTariff!.kind === "pvz" ? selectedPvz!.code : undefined,
         }),
       });
       const data = await res.json();
@@ -237,6 +308,10 @@ export default function CheckoutPage() {
                 setTariffs(null);
                 setSelectedTariff(null);
                 setTariffError(null);
+                setPvzList(null);
+                setSelectedPvz(null);
+                setPvzError(null);
+                setNoPvzMessage(null);
               }}
               onBlur={handleCityBlur}
               className="w-full rounded border border-gray-300 px-3 py-2"
@@ -258,30 +333,71 @@ export default function CheckoutPage() {
             {!loadingTariffs && tariffs && tariffs.length > 0 && (
               <div className="flex flex-col gap-2">
                 {tariffs.map((t) => (
-                  <label
-                    key={t.tariffCode}
-                    className="flex cursor-pointer items-center justify-between gap-3 rounded border border-gray-300 px-3 py-2 text-sm transition has-[:checked]:border-red-600 has-[:checked]:bg-red-50"
-                  >
-                    <span className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="deliveryTariff"
-                        checked={selectedTariff?.tariffCode === t.tariffCode}
-                        onChange={() => setSelectedTariff(t)}
-                      />
-                      {t.name}
-                    </span>
-                    <span className="whitespace-nowrap font-medium">
-                      {t.price.toLocaleString("ru-RU")} ₽,{" "}
-                      {t.periodMinDays === t.periodMaxDays
-                        ? `${t.periodMinDays} дн.`
-                        : `${t.periodMinDays}-${t.periodMaxDays} дн.`}
-                    </span>
-                  </label>
+                  <div key={t.tariffCode}>
+                    <label className="flex cursor-pointer items-center justify-between gap-3 rounded border border-gray-300 px-3 py-2 text-sm transition has-[:checked]:border-red-600 has-[:checked]:bg-red-50">
+                      <span className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="deliveryTariff"
+                          checked={selectedTariff?.tariffCode === t.tariffCode}
+                          onChange={() => handleSelectTariff(t)}
+                        />
+                        {t.name}
+                      </span>
+                      <span className="whitespace-nowrap font-medium">
+                        {t.price.toLocaleString("ru-RU")} ₽,{" "}
+                        {t.periodMinDays === t.periodMaxDays
+                          ? `${t.periodMinDays} дн.`
+                          : `${t.periodMinDays}-${t.periodMaxDays} дн.`}
+                      </span>
+                    </label>
+
+                    {t.kind === "pvz" && selectedTariff?.tariffCode === t.tariffCode && (
+                      <div className="mt-2 ml-4 flex flex-col gap-2 border-l-2 border-gray-100 pl-3">
+                        {loadingPvz && (
+                          <div className="flex items-center gap-2 py-1 text-sm text-gray-500">
+                            <Spinner />
+                            Загрузка пунктов выдачи…
+                          </div>
+                        )}
+
+                        {!loadingPvz && pvzError && <p className="text-sm text-red-600">{pvzError}</p>}
+
+                        {!loadingPvz && pvzList && pvzList.length > 0 && (
+                          <div className="flex max-h-72 flex-col gap-2 overflow-y-auto pr-1">
+                            {pvzList.map((p) => (
+                              <label
+                                key={p.code}
+                                className="flex cursor-pointer items-start gap-2 rounded border border-gray-300 px-3 py-2 text-sm transition has-[:checked]:border-red-600 has-[:checked]:bg-red-50"
+                              >
+                                <input
+                                  type="radio"
+                                  name="pvz"
+                                  className="mt-1"
+                                  checked={selectedPvz?.code === p.code}
+                                  onChange={() => {
+                                    setSelectedPvz(p);
+                                    setErrors((prev) => ({ ...prev, pvz: undefined }));
+                                  }}
+                                />
+                                <span>
+                                  <span className="block">{p.address}</span>
+                                  {p.workTime && <span className="block text-xs text-gray-500">{p.workTime}</span>}
+                                </span>
+                              </label>
+                            ))}
+                          </div>
+                        )}
+
+                        {errors.pvz && <p className="text-sm text-red-600">{errors.pvz}</p>}
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
             )}
 
+            {noPvzMessage && <p className="mt-1 text-sm text-gray-500">{noPvzMessage}</p>}
             {errors.tariff && <p className="mt-1 text-sm text-red-600">{errors.tariff}</p>}
           </div>
 

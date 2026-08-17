@@ -15,6 +15,7 @@ type OrderRow = {
   delivery_city: string;
   delivery_method: string;
   delivery_price: string;
+  delivery_pvz_address: string;
 };
 
 type OrderItemRow = {
@@ -97,6 +98,12 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             <div>
               <dt className="inline font-medium">Город доставки: </dt>
               <dd className="inline">{order.delivery_city}</dd>
+            </div>
+          )}
+          {order.delivery_pvz_address && (
+            <div>
+              <dt className="inline font-medium">Пункт выдачи: </dt>
+              <dd className="inline">{order.delivery_pvz_address}</dd>
             </div>
           )}
         </dl>
