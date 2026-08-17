@@ -52,7 +52,7 @@ export function ProductGallery({ images, alt }: { images: GalleryItem[]; alt: st
                   </span>
                 </>
               ) : (
-                <img src={item.url} alt="" className="h-full w-full object-cover object-center" />
+                <img src={item.url} alt={`${alt} — фото ${i + 1}`} className="h-full w-full object-cover object-center" />
               )}
             </button>
           ))}

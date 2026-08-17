@@ -1,7 +1,17 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { getSiteSettings, phoneToTelHref } from "@/lib/siteSettings";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return {
+    title: `Реквизиты продавца | ${settings.shopName}`,
+    description: `Юридические реквизиты и контакты продавца интернет-магазина «${settings.shopName}».`,
+    alternates: { canonical: "/requisites" },
+  };
+}
 
 export default async function RequisitesPage() {
   const settings = await getSiteSettings();

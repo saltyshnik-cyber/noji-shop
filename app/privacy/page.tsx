@@ -1,7 +1,17 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { getSiteSettings, phoneToTelHref } from "@/lib/siteSettings";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return {
+    title: `Политика конфиденциальности | ${settings.shopName}`,
+    description: `Как интернет-магазин «${settings.shopName}» обрабатывает персональные данные покупателей.`,
+    alternates: { canonical: "/privacy" },
+  };
+}
 
 export default async function PrivacyPage() {
   const settings = await getSiteSettings();

@@ -1,12 +1,24 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ensureSchema, sql } from "@/lib/db";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { CategoryNav } from "@/components/CategoryNav";
 import { CATEGORY_SECTIONS } from "@/lib/categoryNav";
 import { FloatingCartButton } from "@/components/FloatingCartButton";
 import { isVideoUrl } from "@/lib/mediaType";
+import { getSiteSettings } from "@/lib/siteSettings";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return {
+    title: `Каталог ножей — купить с доставкой | ${settings.shopName}`,
+    description:
+      "Кованые ножи ручной работы: охотничьи, туристические, кухонные, финки НКВД. Доставка по России курьером СДЭК или в пункт выдачи.",
+    alternates: { canonical: "/products" },
+  };
+}
 
 type ProductRow = {
   id: number;

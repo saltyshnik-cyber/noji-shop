@@ -1,8 +1,12 @@
 import Link from "next/link";
+import { cache } from "react";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { ensureSchema, sql } from "@/lib/db";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { ProductGallery } from "@/components/ProductGallery";
+import { getSiteSettings } from "@/lib/siteSettings";
+import { truncateForMeta } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +23,7 @@ type ProductRow = {
   in_stock: boolean;
 };
 
-async function getProduct(id: string): Promise<ProductRow | null> {
+const getProduct = cache(async (id: string): Promise<ProductRow | null> => {
   if (!/^\d+$/.test(id)) return null;
 
   await ensureSchema();
@@ -40,7 +44,7 @@ async function getProduct(id: string): Promise<ProductRow | null> {
     WHERE products.id = ${id}
   `;
   return (rows[0] as ProductRow | undefined) ?? null;
-}
+});
 
 type GalleryItem = { url: string; type: "image" | "video" };
 
@@ -49,6 +53,46 @@ async function getExtraImages(id: string): Promise<GalleryItem[]> {
     SELECT url, type FROM product_images WHERE product_id = ${id} ORDER BY sort_order
   `) as GalleryItem[];
   return rows;
+}
+
+function buildProductDescription(product: ProductRow): string {
+  if (product.description.trim()) {
+    return truncateForMeta(product.description);
+  }
+
+  const parts = [
+    `${product.name}${product.category_name ? ` — ${product.category_name.toLowerCase()}` : ""} ручной работы`,
+  ];
+  if (product.steel) parts.push(`сталь ${product.steel}`);
+  if (product.handle_material) parts.push(`рукоять — ${product.handle_material}`);
+  return truncateForMeta(`${parts.join(", ")}. Доставка по России курьером или в пункт выдачи СДЭК.`);
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const [product, settings] = await Promise.all([getProduct(id), getSiteSettings()]);
+
+  if (!product) {
+    return { title: `Товар не найден | ${settings.shopName}` };
+  }
+
+  const title = `${product.name} — купить с доставкой | ${settings.shopName}`;
+  const description = buildProductDescription(product);
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/products/${id}` },
+    openGraph: {
+      title,
+      description,
+      images: product.photo_url ? [{ url: product.photo_url, alt: product.name }] : [],
+    },
+  };
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {

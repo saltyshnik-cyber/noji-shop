@@ -1,8 +1,24 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ensureSchema, sql } from "@/lib/db";
 import { getSiteSettings, phoneToTelHref } from "@/lib/siteSettings";
+import { truncateForMeta } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const title = `${settings.shopName} — кованые ножи ручной работы`;
+  const description = truncateForMeta(
+    settings.aboutText || "Кованые ножи ручной работы: охотничьи, туристические, кухонные, финки НКВД.",
+  );
+
+  return {
+    title,
+    description,
+    alternates: { canonical: "/" },
+  };
+}
 
 const FEATURED_PRODUCT_NAMES = [
   "Турист №2",
@@ -124,7 +140,7 @@ const HERO_FEATURES: { icon: HeroIconName; label: string; sub: string }[] = [
 function HeroSection({ heroImageUrl, shopName, shopSubtitle }: { heroImageUrl: string; shopName: string; shopSubtitle: string }) {
   return (
     <section className="relative flex min-h-[80vh] items-end justify-center overflow-hidden border-b border-neutral-800">
-      <img src={heroImageUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      <img src={heroImageUrl} alt={`${shopName} — ${shopSubtitle}`} className="absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/40" />
 
       <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 text-left sm:px-8 sm:pb-20">
@@ -229,7 +245,7 @@ function ExclusiveGallerySection({ images }: { images: string[] }) {
               <div className="aspect-[4/5] overflow-hidden rounded-lg bg-neutral-900">
                 <img
                   src={src}
-                  alt=""
+                  alt={`Эксклюзивная авторская работа — фото ${i + 1}`}
                   className="h-full w-full object-cover object-center transition hover:scale-105"
                 />
               </div>
