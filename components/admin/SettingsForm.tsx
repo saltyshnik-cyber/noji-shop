@@ -172,6 +172,57 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
             className="w-full rounded border border-gray-300 px-3 py-2"
           />
         </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium">Email</label>
+          <input
+            type="email"
+            value={data.contactEmail}
+            onChange={(e) => update("contactEmail", e.target.value)}
+            className="w-full rounded border border-gray-300 px-3 py-2"
+          />
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-4 border-t border-gray-200 pt-6">
+        <h2 className="text-lg font-semibold">Реквизиты продавца</h2>
+        <p className="text-sm text-gray-500">
+          Показываются на странице «Реквизиты» и в публичной оферте — обязательны для приёма платежей.
+        </p>
+        <div>
+          <label className="mb-1 block text-sm font-medium">Наименование продавца</label>
+          <input
+            placeholder="ИП Иванов Иван Иванович"
+            value={data.legalName}
+            onChange={(e) => update("legalName", e.target.value)}
+            className="w-full rounded border border-gray-300 px-3 py-2"
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium">ИНН</label>
+            <input
+              value={data.legalInn}
+              onChange={(e) => update("legalInn", e.target.value)}
+              className="w-full rounded border border-gray-300 px-3 py-2"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium">ОГРН/ОГРНИП</label>
+            <input
+              value={data.legalOgrn}
+              onChange={(e) => update("legalOgrn", e.target.value)}
+              className="w-full rounded border border-gray-300 px-3 py-2"
+            />
+          </div>
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium">Юридический адрес</label>
+          <input
+            value={data.legalAddress}
+            onChange={(e) => update("legalAddress", e.target.value)}
+            className="w-full rounded border border-gray-300 px-3 py-2"
+          />
+        </div>
       </section>
 
       <section className="flex flex-col gap-4 border-t border-gray-200 pt-6">

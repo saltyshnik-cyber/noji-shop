@@ -9,6 +9,11 @@ export type SiteSettings = {
   contactPhone: string;
   contactAddress: string;
   contactDelivery: string;
+  contactEmail: string;
+  legalName: string;
+  legalInn: string;
+  legalOgrn: string;
+  legalAddress: string;
   heroImageUrl: string;
   galleryImages: string[];
 };
@@ -23,6 +28,11 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   contactPhone: "8 (960) 165-01-23",
   contactAddress: "г. Москва, ул. Примерная, 1",
   contactDelivery: "По России, 3–7 рабочих дней",
+  contactEmail: "info@example.com",
+  legalName: "[Наименование продавца уточняется]",
+  legalInn: "[ИНН уточняется]",
+  legalOgrn: "[ОГРН/ОГРНИП уточняется]",
+  legalAddress: "[Юридический адрес уточняется]",
   heroImageUrl: "https://h8pxe4fhemspu7gv.public.blob.vercel-storage.com/IMG_0555-MesK0AHcQXR24RMzch5QVZU7RllU0a.JPG",
   galleryImages: [
     "https://h8pxe4fhemspu7gv.public.blob.vercel-storage.com/IMG_0554-H2zczzFItYrvFDJ40mxTnZ2eFLdJIh.JPG",
@@ -42,6 +52,11 @@ const KEY_MAP: Record<keyof SiteSettings, string> = {
   contactPhone: "contact_phone",
   contactAddress: "contact_address",
   contactDelivery: "contact_delivery",
+  contactEmail: "contact_email",
+  legalName: "legal_name",
+  legalInn: "legal_inn",
+  legalOgrn: "legal_ogrn",
+  legalAddress: "legal_address",
   heroImageUrl: "hero_image_url",
   galleryImages: "gallery_images",
 };

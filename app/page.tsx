@@ -333,16 +333,32 @@ function ReviewsSection() {
   );
 }
 
-function ContactsSection({ phone, address, delivery }: { phone: string; address: string; delivery: string }) {
+function ContactsSection({
+  phone,
+  address,
+  delivery,
+  email,
+}: {
+  phone: string;
+  address: string;
+  delivery: string;
+  email: string;
+}) {
   return (
     <section id="contacts" className="scroll-mt-16">
       <div className="mx-auto max-w-4xl px-4 py-16">
         <h2 className="mb-8 text-center text-2xl font-bold text-white sm:text-3xl">Контакты и доставка</h2>
-        <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Телефон</h3>
             <a href={phoneToTelHref(phone)} className="text-lg text-white hover:text-red-500 hover:underline">
               {phone}
+            </a>
+          </div>
+          <div>
+            <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Email</h3>
+            <a href={`mailto:${email}`} className="text-lg text-white hover:text-red-500 hover:underline">
+              {email}
             </a>
           </div>
           <div>
@@ -375,7 +391,12 @@ export default async function HomePage() {
       <FeaturedProductsSection products={featuredProducts} />
       <ReviewsSection />
       <ExclusiveGallerySection images={settings.galleryImages} />
-      <ContactsSection phone={settings.contactPhone} address={settings.contactAddress} delivery={settings.contactDelivery} />
+      <ContactsSection
+        phone={settings.contactPhone}
+        address={settings.contactAddress}
+        delivery={settings.contactDelivery}
+        email={settings.contactEmail}
+      />
     </main>
   );
 }
