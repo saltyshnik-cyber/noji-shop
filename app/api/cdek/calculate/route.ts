@@ -28,6 +28,45 @@ type CdekTariffListResponse = {
   errors?: { code: string; message: string }[];
 };
 
+type Tariff = {
+  tariffCode: number;
+  name: string;
+  description: string | null;
+  price: number;
+  periodMinDays: number;
+  periodMaxDays: number;
+};
+
+// Исключаем дорогие быстрые тарифы (экспресс/магистральный экспресс/супер-экспресс)
+// и постаматы — покупателю нужен только курьер до двери и самовывоз из ПВЗ.
+const EXCLUDED_TARIFF_PATTERN = /экспресс|магистральный|постамат/i;
+
+/**
+ * Сводит десятки технических тарифов СДЭК к двум понятным вариантам:
+ * самый дешёвый "до двери" и самый дешёвый "до ПВЗ" (склад как конечная точка).
+ * Если какого-то варианта для города нет — просто не включаем его, без ошибки.
+ */
+function pickFriendlyTariffs(tariffs: Tariff[]): Tariff[] {
+  const eligible = tariffs.filter((t) => !EXCLUDED_TARIFF_PATTERN.test(t.name));
+
+  const cheapest = (candidates: Tariff[]) =>
+    candidates.reduce<Tariff | null>((best, t) => (best === null || t.price < best.price ? t : best), null);
+
+  const result: Tariff[] = [];
+
+  const doorTariff = cheapest(eligible.filter((t) => /дверь$/i.test(t.name.trim())));
+  if (doorTariff) {
+    result.push({ ...doorTariff, name: "Курьером до двери" });
+  }
+
+  const pvzTariff = cheapest(eligible.filter((t) => /склад$/i.test(t.name.trim())));
+  if (pvzTariff) {
+    result.push({ ...pvzTariff, name: "Самовывоз из пункта выдачи" });
+  }
+
+  return result;
+}
+
 export async function POST(request: Request) {
   let body: CalculateRequestBody;
   try {
@@ -66,7 +105,7 @@ export async function POST(request: Request) {
       }),
     });
 
-    const tariffs = (data.tariff_codes ?? []).map((t) => ({
+    const allTariffs: Tariff[] = (data.tariff_codes ?? []).map((t) => ({
       tariffCode: t.tariff_code,
       name: t.tariff_name,
       description: t.tariff_description ?? null,
@@ -74,6 +113,8 @@ export async function POST(request: Request) {
       periodMinDays: t.period_min,
       periodMaxDays: t.period_max,
     }));
+
+    const tariffs = pickFriendlyTariffs(allTariffs);
 
     if (tariffs.length === 0) {
       return NextResponse.json(
