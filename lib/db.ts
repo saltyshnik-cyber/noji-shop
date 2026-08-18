@@ -18,6 +18,62 @@ function getSql(): NeonQueryFunction<false, false> {
 export const sql: NeonQueryFunction<false, false> = ((...args: Parameters<NeonQueryFunction<false, false>>) =>
   getSql()(...args)) as NeonQueryFunction<false, false>;
 
+export function slugify(name: string): string {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^\wа-яё-]/gi, "");
+}
+
+// Слаги для категорий, существовавших до перевода каталога на БД
+// (были захардкожены в lib/categoryNav.ts) — сохраняем их при миграции,
+// чтобы не сломать уже проиндексированные ссылки #hunting и т.п.
+const LEGACY_CATEGORY_SLUGS: Record<string, string> = {
+  "Финка НКВД": "finka-nkvd",
+  "Охотничьи": "hunting",
+  "Туристические": "tourist",
+  "Кухонные": "kitchen",
+};
+
+// Одноразовая (по факту) миграция: проставляет slug и sort_order категориям,
+// у которых их ещё нет. Каждая часть идемпотентна и безопасна при повторных
+// вызовах — slug бэкфилится только пока пустой, sort_order — только пока
+// вообще ни у одной категории не задан вручную (т.е. каталог ещё не
+// настраивали через новую админку).
+async function migrateCategoryDefaults(): Promise<void> {
+  const rowsNeedingSlug = (await sql`SELECT id, name FROM categories WHERE slug = ''`) as {
+    id: number;
+    name: string;
+  }[];
+  for (const row of rowsNeedingSlug) {
+    const slug = LEGACY_CATEGORY_SLUGS[row.name] ?? slugify(row.name) ?? `category-${row.id}`;
+    await sql`UPDATE categories SET slug = ${slug} WHERE id = ${row.id}`;
+  }
+
+  const [{ count }] = (await sql`SELECT COUNT(*) FROM categories WHERE sort_order != 0`) as {
+    count: string;
+  }[];
+  if (Number(count) === 0) {
+    const allCategories = (await sql`SELECT id, name FROM categories ORDER BY id`) as {
+      id: number;
+      name: string;
+    }[];
+    const knownOrder = Object.keys(LEGACY_CATEGORY_SLUGS);
+    const sorted = [...allCategories].sort((a, b) => {
+      const ai = knownOrder.indexOf(a.name);
+      const bi = knownOrder.indexOf(b.name);
+      if (ai !== -1 && bi !== -1) return ai - bi;
+      if (ai !== -1) return -1;
+      if (bi !== -1) return 1;
+      return a.id - b.id;
+    });
+    for (let i = 0; i < sorted.length; i++) {
+      await sql`UPDATE categories SET sort_order = ${i} WHERE id = ${sorted[i].id}`;
+    }
+  }
+}
+
 let schemaReady: Promise<void> | null = null;
 
 export function ensureSchema(): Promise<void> {
@@ -26,9 +82,16 @@ export function ensureSchema(): Promise<void> {
       await sql`
         CREATE TABLE IF NOT EXISTS categories (
           id SERIAL PRIMARY KEY,
-          name TEXT NOT NULL
+          name TEXT NOT NULL,
+          slug TEXT NOT NULL DEFAULT '',
+          sort_order INTEGER NOT NULL DEFAULT 0,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
         )
       `;
+      await sql`ALTER TABLE categories ADD COLUMN IF NOT EXISTS slug TEXT NOT NULL DEFAULT ''`;
+      await sql`ALTER TABLE categories ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 0`;
+      await sql`ALTER TABLE categories ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT now()`;
+      await migrateCategoryDefaults();
       await sql`
         CREATE TABLE IF NOT EXISTS products (
           id SERIAL PRIMARY KEY,

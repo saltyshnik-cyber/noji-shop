@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { ensureSchema, sql } from "@/lib/db";
 import AdminNav from "@/components/admin/AdminNav";
 import ProductForm from "@/components/admin/ProductForm";
+import { getCategories } from "@/lib/categories";
 
 export const dynamic = "force-dynamic";
 
@@ -17,10 +18,6 @@ type ProductRow = {
   handle_material: string;
   in_stock: boolean;
 };
-
-async function getCategories() {
-  return (await sql`SELECT id, name FROM categories ORDER BY name`) as { id: number; name: string }[];
-}
 
 async function getProduct(id: string): Promise<ProductRow | null> {
   if (!/^\d+$/.test(id)) return null;

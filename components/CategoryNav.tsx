@@ -1,19 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CATEGORY_SECTIONS } from "@/lib/categoryNav";
 
 const STICKY_OFFSET = 130;
 
-export function CategoryNav() {
-  const [active, setActive] = useState<string>(CATEGORY_SECTIONS[0].slug);
+type CategorySection = { name: string; slug: string };
+
+export function CategoryNav({ sections }: { sections: CategorySection[] }) {
+  const [active, setActive] = useState<string>(sections[0]?.slug ?? "");
 
   useEffect(() => {
-    const sections = CATEGORY_SECTIONS.map((c) => ({ slug: c.slug, el: document.getElementById(c.slug) })).filter(
-      (s) => s.el !== null,
-    ) as { slug: string; el: HTMLElement }[];
+    const visibleSections = sections
+      .map((c) => ({ slug: c.slug, el: document.getElementById(c.slug) }))
+      .filter((s) => s.el !== null) as { slug: string; el: HTMLElement }[];
 
-    if (sections.length === 0) return;
+    if (visibleSections.length === 0) return;
 
     let ticking = false;
 
@@ -23,12 +24,12 @@ export function CategoryNav() {
       const atBottom =
         window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
       if (atBottom) {
-        setActive(sections[sections.length - 1].slug);
+        setActive(visibleSections[visibleSections.length - 1].slug);
         return;
       }
 
-      let current = sections[0].slug;
-      for (const s of sections) {
+      let current = visibleSections[0].slug;
+      for (const s of visibleSections) {
         if (s.el.getBoundingClientRect().top <= STICKY_OFFSET) {
           current = s.slug;
         }
@@ -45,12 +46,14 @@ export function CategoryNav() {
     updateActive();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [sections]);
+
+  if (sections.length === 0) return null;
 
   return (
     <nav className="sticky top-16 z-40 h-14 min-w-0 border-b border-neutral-800 bg-neutral-950">
       <div className="mx-auto flex h-full max-w-6xl items-center gap-2 overflow-x-auto px-4">
-        {CATEGORY_SECTIONS.map((c) => {
+        {sections.map((c) => {
           const isActive = active === c.slug;
           return (
             <a

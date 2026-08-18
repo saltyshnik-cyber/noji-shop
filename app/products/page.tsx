@@ -1,9 +1,9 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ensureSchema, sql } from "@/lib/db";
+import { ensureSchema, sql, slugify } from "@/lib/db";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { CategoryNav } from "@/components/CategoryNav";
-import { CATEGORY_SECTIONS } from "@/lib/categoryNav";
+import { getCategories } from "@/lib/categories";
 import { FloatingCartButton } from "@/components/FloatingCartButton";
 import { isVideoUrl } from "@/lib/mediaType";
 import { getSiteSettings } from "@/lib/siteSettings";
@@ -117,7 +117,7 @@ function ProductCard({ p }: { p: ProductRow }) {
 }
 
 export default async function ProductsPage() {
-  const products = await getProducts();
+  const [products, categories] = await Promise.all([getProducts(), getCategories()]);
 
   const byCategory = new Map<string, ProductRow[]>();
   for (const p of products) {
@@ -127,16 +127,14 @@ export default async function ProductsPage() {
     byCategory.set(key, list);
   }
 
-  const knownNames = new Set<string>(CATEGORY_SECTIONS.map((c) => c.name));
-  const extraSections = [...byCategory.keys()]
-    .filter((name) => !knownNames.has(name))
-    .map((name) => ({ name, slug: name.toLowerCase().replace(/\s+/g, "-") }));
-
-  const sections = [...CATEGORY_SECTIONS, ...extraSections];
+  const sections = categories.map((c) => ({ name: c.name, slug: c.slug }));
+  if (byCategory.has("Без категории") && !categories.some((c) => c.name === "Без категории")) {
+    sections.push({ name: "Без категории", slug: slugify("Без категории") });
+  }
 
   return (
     <>
-      <CategoryNav />
+      <CategoryNav sections={sections} />
       <FloatingCartButton />
       <main className="min-w-0">
         <div className="mx-auto max-w-6xl px-4 py-10">

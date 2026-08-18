@@ -1,13 +1,8 @@
-import { ensureSchema, sql } from "@/lib/db";
 import AdminNav from "@/components/admin/AdminNav";
 import ProductForm from "@/components/admin/ProductForm";
+import { getCategories } from "@/lib/categories";
 
 export const dynamic = "force-dynamic";
-
-async function getCategories() {
-  await ensureSchema();
-  return (await sql`SELECT id, name FROM categories ORDER BY name`) as { id: number; name: string }[];
-}
 
 export default async function NewProductPage() {
   const categories = await getCategories();
