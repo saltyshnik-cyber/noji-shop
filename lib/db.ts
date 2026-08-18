@@ -74,6 +74,17 @@ async function migrateCategoryDefaults(): Promise<void> {
   }
 }
 
+// Одноразовый (по факту) бэкфилл stock_quantity для товаров, заведённых до
+// появления этого поля. Раньше наличие было просто галочкой in_stock —
+// трактуем "была галочка" как "есть хотя бы 1 шт", чтобы уже опубликованные
+// товары не пропали с сайта и не заблокировались для покупки сразу после
+// миграции. Идемпотентно: как только у товара появляется реальное
+// stock_quantity > 0, условие WHERE stock_quantity = 0 для него больше не
+// совпадает, и повторные запуски его не трогают.
+async function migrateProductStockDefaults(): Promise<void> {
+  await sql`UPDATE products SET stock_quantity = 1 WHERE stock_quantity = 0 AND in_stock = TRUE`;
+}
+
 let schemaReady: Promise<void> | null = null;
 
 export function ensureSchema(): Promise<void> {
@@ -103,9 +114,12 @@ export function ensureSchema(): Promise<void> {
           steel TEXT NOT NULL DEFAULT '',
           blade_length_mm INTEGER,
           handle_material TEXT NOT NULL DEFAULT '',
-          in_stock BOOLEAN NOT NULL DEFAULT TRUE
+          in_stock BOOLEAN NOT NULL DEFAULT TRUE,
+          stock_quantity INTEGER NOT NULL DEFAULT 0
         )
       `;
+      await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS stock_quantity INTEGER NOT NULL DEFAULT 0`;
+      await migrateProductStockDefaults();
       await sql`
         CREATE TABLE IF NOT EXISTS orders (
           id SERIAL PRIMARY KEY,

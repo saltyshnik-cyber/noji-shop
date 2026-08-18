@@ -10,17 +10,37 @@ type ProductRow = {
   price: string;
   photo_url: string;
   category_name: string | null;
-  in_stock: boolean;
+  stock_quantity: number;
 };
 
 async function getProducts(): Promise<ProductRow[]> {
   await ensureSchema();
   return (await sql`
-    SELECT products.id, products.name, products.price, products.photo_url, categories.name AS category_name, products.in_stock
+    SELECT
+      products.id, products.name, products.price, products.photo_url,
+      categories.name AS category_name, products.stock_quantity
     FROM products
     LEFT JOIN categories ON categories.id = products.category_id
     ORDER BY products.id DESC
   `) as ProductRow[];
+}
+
+function StockBadge({ quantity }: { quantity: number }) {
+  if (quantity === 0) {
+    return (
+      <span className="shrink-0 whitespace-nowrap rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+        Нет в наличии
+      </span>
+    );
+  }
+  if (quantity <= 2) {
+    return (
+      <span className="shrink-0 whitespace-nowrap rounded bg-amber-100 px-2 py-0.5 text-xs text-amber-800">
+        Осталось {quantity} шт
+      </span>
+    );
+  }
+  return <span className="shrink-0 whitespace-nowrap text-xs text-gray-500">{quantity} шт</span>;
 }
 
 export default async function AdminProductsPage() {
@@ -54,11 +74,7 @@ export default async function AdminProductsPage() {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <p className="truncate font-medium">{p.name}</p>
-                  {!p.in_stock && (
-                    <span className="shrink-0 whitespace-nowrap rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
-                      Нет в наличии
-                    </span>
-                  )}
+                  <StockBadge quantity={p.stock_quantity} />
                 </div>
                 <p className="text-sm text-gray-500">{p.category_name ?? "Без категории"}</p>
               </div>

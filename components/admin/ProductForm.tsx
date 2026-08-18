@@ -15,7 +15,7 @@ type ProductData = {
   steel: string;
   blade_length_mm: number | null;
   handle_material: string;
-  in_stock: boolean;
+  stock_quantity: number;
 };
 
 const EMPTY: ProductData = {
@@ -27,7 +27,7 @@ const EMPTY: ProductData = {
   steel: "",
   blade_length_mm: null,
   handle_material: "",
-  in_stock: true,
+  stock_quantity: 0,
 };
 
 export default function ProductForm({
@@ -67,6 +67,10 @@ export default function ProductForm({
       setError("Введите корректную цену");
       return;
     }
+    if (!Number.isInteger(data.stock_quantity) || data.stock_quantity < 0) {
+      setError("Введите корректное количество в наличии");
+      return;
+    }
 
     setSaving(true);
     try {
@@ -79,7 +83,7 @@ export default function ProductForm({
         steel: data.steel,
         blade_length_mm: data.blade_length_mm,
         handle_material: data.handle_material,
-        in_stock: data.in_stock,
+        stock_quantity: data.stock_quantity,
       };
 
       const res = await fetch(mode === "create" ? "/api/admin/products" : `/api/admin/products/${productId}`, {
@@ -231,10 +235,20 @@ export default function ProductForm({
         </div>
       </div>
 
-      <label className="flex w-fit items-center gap-2 text-sm">
-        <input type="checkbox" checked={data.in_stock} onChange={(e) => update("in_stock", e.target.checked)} />
-        В наличии
-      </label>
+      <div className="w-fit">
+        <label className="mb-1 block text-sm font-medium" htmlFor="stock_quantity">
+          Количество в наличии
+        </label>
+        <input
+          id="stock_quantity"
+          type="number"
+          min={0}
+          step={1}
+          value={data.stock_quantity}
+          onChange={(e) => update("stock_quantity", e.target.value ? Math.max(0, Math.trunc(Number(e.target.value))) : 0)}
+          className="w-32 rounded border border-gray-300 px-3 py-2"
+        />
+      </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 

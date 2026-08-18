@@ -31,7 +31,7 @@ type ProductRow = {
   steel: string;
   blade_length_mm: number | null;
   handle_material: string;
-  in_stock: boolean;
+  stock_quantity: number;
 };
 
 async function getProducts(): Promise<ProductRow[]> {
@@ -52,7 +52,7 @@ async function getProducts(): Promise<ProductRow[]> {
       products.steel,
       products.blade_length_mm,
       products.handle_material,
-      products.in_stock
+      products.stock_quantity
     FROM products
     LEFT JOIN categories ON categories.id = products.category_id
     ORDER BY products.id
@@ -72,9 +72,13 @@ function ProductCard({ p }: { p: ProductRow }) {
         <div className="flex flex-1 flex-col gap-2 p-4">
           <div className="flex items-start justify-between gap-2">
             <h3 className="line-clamp-2 min-h-[3.5rem] text-lg font-semibold text-white">{p.name}</h3>
-            {!p.in_stock && (
+            {p.stock_quantity === 0 ? (
               <span className="whitespace-nowrap rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
                 Нет в наличии
+              </span>
+            ) : (
+              <span className="whitespace-nowrap rounded bg-neutral-800 px-2 py-0.5 text-xs text-gray-300">
+                Осталось {p.stock_quantity} шт
               </span>
             )}
           </div>
@@ -108,7 +112,7 @@ function ProductCard({ p }: { p: ProductRow }) {
           name={p.name}
           price={Number(p.price)}
           photoUrl={p.photo_url}
-          inStock={p.in_stock}
+          inStock={p.stock_quantity > 0}
           compact
         />
       </div>

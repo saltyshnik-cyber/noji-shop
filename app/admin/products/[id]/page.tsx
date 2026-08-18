@@ -16,7 +16,7 @@ type ProductRow = {
   steel: string;
   blade_length_mm: number | null;
   handle_material: string;
-  in_stock: boolean;
+  stock_quantity: number;
 };
 
 async function getProduct(id: string): Promise<ProductRow | null> {
@@ -58,7 +58,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
           steel: product.steel,
           blade_length_mm: product.blade_length_mm,
           handle_material: product.handle_material,
-          in_stock: product.in_stock,
+          stock_quantity: product.stock_quantity,
         }}
         initialImages={images}
       />

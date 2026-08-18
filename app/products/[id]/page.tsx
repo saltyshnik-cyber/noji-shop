@@ -20,7 +20,7 @@ type ProductRow = {
   steel: string;
   blade_length_mm: number | null;
   handle_material: string;
-  in_stock: boolean;
+  stock_quantity: number;
 };
 
 const getProduct = cache(async (id: string): Promise<ProductRow | null> => {
@@ -38,7 +38,7 @@ const getProduct = cache(async (id: string): Promise<ProductRow | null> => {
       products.steel,
       products.blade_length_mm,
       products.handle_material,
-      products.in_stock
+      products.stock_quantity
     FROM products
     LEFT JOIN categories ON categories.id = products.category_id
     WHERE products.id = ${id}
@@ -122,9 +122,13 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           <div className="flex flex-col gap-3">
             <div className="flex items-start justify-between gap-2">
               <h1 className="text-2xl font-bold">{product.name}</h1>
-              {!product.in_stock && (
+              {product.stock_quantity === 0 ? (
                 <span className="whitespace-nowrap rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
                   Нет в наличии
+                </span>
+              ) : (
+                <span className="whitespace-nowrap rounded bg-red-50 px-2 py-0.5 text-xs text-red-800">
+                  Осталось {product.stock_quantity} шт
                 </span>
               )}
             </div>
@@ -165,7 +169,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               name={product.name}
               price={Number(product.price)}
               photoUrl={product.photo_url}
-              inStock={product.in_stock}
+              inStock={product.stock_quantity > 0}
             />
           </div>
         </div>

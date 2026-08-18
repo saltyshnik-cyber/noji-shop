@@ -11,7 +11,7 @@ type ProductPayload = {
   steel: string;
   blade_length_mm: number | null;
   handle_material: string;
-  in_stock: boolean;
+  stock_quantity: number;
 };
 
 export async function POST(request: Request) {
@@ -23,15 +23,19 @@ export async function POST(request: Request) {
   if (typeof body.price !== "number" || !(body.price > 0)) {
     return NextResponse.json({ error: "Некорректная цена" }, { status: 400 });
   }
+  const stockQuantity = body.stock_quantity ?? 0;
+  if (!Number.isInteger(stockQuantity) || stockQuantity < 0) {
+    return NextResponse.json({ error: "Некорректное количество в наличии" }, { status: 400 });
+  }
 
   await ensureSchema();
 
   const [product] = await sql`
     INSERT INTO products
-      (name, description, price, photo_url, category_id, steel, blade_length_mm, handle_material, in_stock)
+      (name, description, price, photo_url, category_id, steel, blade_length_mm, handle_material, in_stock, stock_quantity)
     VALUES
       (${body.name}, ${body.description ?? ""}, ${body.price}, ${body.photo_url ?? ""}, ${body.category_id ?? null},
-       ${body.steel ?? ""}, ${body.blade_length_mm ?? null}, ${body.handle_material ?? ""}, ${body.in_stock ?? true})
+       ${body.steel ?? ""}, ${body.blade_length_mm ?? null}, ${body.handle_material ?? ""}, ${stockQuantity > 0}, ${stockQuantity})
     RETURNING id
   `;
 

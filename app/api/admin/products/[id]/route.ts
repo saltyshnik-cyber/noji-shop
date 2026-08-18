@@ -11,7 +11,7 @@ type ProductPayload = {
   steel: string;
   blade_length_mm: number | null;
   handle_material: string;
-  in_stock: boolean;
+  stock_quantity: number;
 };
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -28,6 +28,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (typeof body.price !== "number" || !(body.price > 0)) {
     return NextResponse.json({ error: "Некорректная цена" }, { status: 400 });
   }
+  const stockQuantity = body.stock_quantity ?? 0;
+  if (!Number.isInteger(stockQuantity) || stockQuantity < 0) {
+    return NextResponse.json({ error: "Некорректное количество в наличии" }, { status: 400 });
+  }
 
   await sql`
     UPDATE products SET
@@ -39,7 +43,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       steel = ${body.steel ?? ""},
       blade_length_mm = ${body.blade_length_mm ?? null},
       handle_material = ${body.handle_material ?? ""},
-      in_stock = ${body.in_stock ?? true}
+      in_stock = ${stockQuantity > 0},
+      stock_quantity = ${stockQuantity}
     WHERE id = ${id}
   `;
 
