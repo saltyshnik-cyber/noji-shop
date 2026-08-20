@@ -65,6 +65,8 @@ export default function CheckoutPage() {
   const [tariffError, setTariffError] = useState<string | null>(null);
   const lastFetchedCity = useRef("");
 
+  const deliveryBlockRef = useRef<HTMLDivElement>(null);
+
   const [pvzList, setPvzList] = useState<CdekPvz[] | null>(null);
   const [selectedPvz, setSelectedPvz] = useState<CdekPvz | null>(null);
   const [loadingPvz, setLoadingPvz] = useState(false);
@@ -171,7 +173,7 @@ export default function CheckoutPage() {
     }
   }
 
-  function validate(): boolean {
+  function validate(): typeof errors {
     const next: typeof errors = {};
     if (isBlank(customerName)) next.customerName = "Введите имя";
     if (!isValidPhone(phone)) next.phone = "Формат: +7XXXXXXXXXX";
@@ -181,19 +183,25 @@ export default function CheckoutPage() {
     } else if (loadingTariffs) {
       next.tariff = "Дождитесь расчёта стоимости доставки";
     } else if (!selectedTariff) {
-      next.tariff = "Выберите способ доставки";
+      next.tariff = "Пожалуйста, выберите способ доставки";
     } else if (selectedTariff.kind === "pvz") {
       if (loadingPvz) next.pvz = "Дождитесь загрузки пунктов выдачи";
       else if (!selectedPvz) next.pvz = "Выберите пункт выдачи";
     }
     setErrors(next);
-    return Object.keys(next).length === 0;
+    return next;
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitError(null);
-    if (!validate()) return;
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      if (validationErrors.tariff || validationErrors.pvz) {
+        deliveryBlockRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -320,8 +328,18 @@ export default function CheckoutPage() {
             {tariffError && <p className="mt-1 text-sm text-red-600">{tariffError}</p>}
           </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">Способ доставки</label>
+          <div
+            ref={deliveryBlockRef}
+            className={`rounded-lg border-2 p-4 transition ${
+              errors.tariff || errors.pvz ? "border-red-600 bg-red-50" : "border-red-800"
+            }`}
+          >
+            <div className="mb-3 flex items-baseline gap-2">
+              <span className="text-lg font-bold">
+                Способ доставки <span className="text-red-600">*</span>
+              </span>
+              <span className="text-xs font-normal text-gray-500">обязательно</span>
+            </div>
 
             {loadingTariffs && (
               <div className="flex items-center gap-2 py-1 text-sm text-gray-500">
