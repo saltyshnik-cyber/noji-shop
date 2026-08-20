@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
 import { isBlank, isValidEmail, isValidPhone } from "@/lib/validation";
+import { PvzSelector } from "@/components/PvzSelector";
+import type { CdekPvz } from "@/lib/cdekTypes";
 
 export const dynamic = "force-dynamic";
 
@@ -20,15 +22,6 @@ type CdekTariff = {
   periodMinDays: number;
   periodMaxDays: number;
   kind: "door" | "pvz";
-};
-
-type CdekPvz = {
-  code: string;
-  name: string | null;
-  address: string | null;
-  phone: string | null;
-  workTime: string | null;
-  coordinates: { lat: number; lon: number } | null;
 };
 
 function Spinner() {
@@ -382,29 +375,15 @@ export default function CheckoutPage() {
                         {!loadingPvz && pvzError && <p className="text-sm text-red-600">{pvzError}</p>}
 
                         {!loadingPvz && pvzList && pvzList.length > 0 && (
-                          <div className="flex max-h-72 flex-col gap-2 overflow-y-auto pr-1">
-                            {pvzList.map((p) => (
-                              <label
-                                key={p.code}
-                                className="flex cursor-pointer items-start gap-2 rounded border border-gray-300 px-3 py-2 text-sm transition has-[:checked]:border-red-600 has-[:checked]:bg-red-50"
-                              >
-                                <input
-                                  type="radio"
-                                  name="pvz"
-                                  className="mt-1"
-                                  checked={selectedPvz?.code === p.code}
-                                  onChange={() => {
-                                    setSelectedPvz(p);
-                                    setErrors((prev) => ({ ...prev, pvz: undefined }));
-                                  }}
-                                />
-                                <span>
-                                  <span className="block">{p.address}</span>
-                                  {p.workTime && <span className="block text-xs text-gray-500">{p.workTime}</span>}
-                                </span>
-                              </label>
-                            ))}
-                          </div>
+                          <PvzSelector
+                            city={city}
+                            points={pvzList}
+                            selectedCode={selectedPvz?.code ?? null}
+                            onSelect={(p) => {
+                              setSelectedPvz(p);
+                              setErrors((prev) => ({ ...prev, pvz: undefined }));
+                            }}
+                          />
                         )}
 
                         {errors.pvz && <p className="text-sm text-red-600">{errors.pvz}</p>}
