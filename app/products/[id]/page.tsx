@@ -169,7 +169,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               name={product.name}
               price={Number(product.price)}
               photoUrl={product.photo_url}
-              inStock={product.stock_quantity > 0}
+              stockQuantity={product.stock_quantity}
             />
           </div>
         </div>

@@ -5,12 +5,16 @@ export function QuantityStepper({
   onDecrement,
   onIncrement,
   compact = false,
+  max,
 }: {
   quantity: number;
   onDecrement: () => void;
   onIncrement: () => void;
   compact?: boolean;
+  max?: number;
 }) {
+  const atMax = max !== undefined && quantity >= max;
+
   return (
     <div className="flex items-center rounded border border-neutral-600">
       <button
@@ -27,8 +31,10 @@ export function QuantityStepper({
       <button
         type="button"
         onClick={onIncrement}
-        className={`${compact ? "px-2 py-1 text-sm" : "px-3 py-2"} text-gray-200 hover:bg-neutral-800`}
+        disabled={atMax}
+        className={`${compact ? "px-2 py-1 text-sm" : "px-3 py-2"} text-gray-200 hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent`}
         aria-label="Увеличить количество"
+        title={atMax ? "Больше нет в наличии" : undefined}
       >
         +
       </button>

@@ -8,20 +8,20 @@ export function AddToCartButton({
   name,
   price,
   photoUrl,
-  inStock,
+  stockQuantity,
   compact = false,
 }: {
   productId: number;
   name: string;
   price: number;
   photoUrl: string;
-  inStock: boolean;
+  stockQuantity: number;
   compact?: boolean;
 }) {
   const { items, addItem, setQuantity } = useCart();
   const quantity = items.find((i) => i.productId === productId)?.quantity ?? 0;
 
-  if (!inStock) {
+  if (stockQuantity <= 0) {
     return (
       <button
         type="button"
@@ -61,8 +61,11 @@ export function AddToCartButton({
     >
       <QuantityStepper
         quantity={quantity}
+        max={stockQuantity}
         onDecrement={() => setQuantity(productId, quantity - 1)}
-        onIncrement={() => setQuantity(productId, quantity + 1)}
+        onIncrement={() => {
+          if (quantity < stockQuantity) setQuantity(productId, quantity + 1);
+        }}
         compact={compact}
       />
     </div>

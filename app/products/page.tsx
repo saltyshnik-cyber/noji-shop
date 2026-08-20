@@ -112,7 +112,7 @@ function ProductCard({ p }: { p: ProductRow }) {
           name={p.name}
           price={Number(p.price)}
           photoUrl={p.photo_url}
-          inStock={p.stock_quantity > 0}
+          stockQuantity={p.stock_quantity}
           compact
         />
       </div>
