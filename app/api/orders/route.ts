@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { ensureSchema, sql } from "@/lib/db";
 import { isBlank, isValidEmail, isValidPhone } from "@/lib/validation";
 import { restockItems } from "@/lib/orders";
-import { createYookassaPayment, YookassaApiError } from "@/lib/yookassa";
+import { buildOrderReceipt, createYookassaPayment, YookassaApiError } from "@/lib/yookassa";
 
 type OrderItemInput = {
   productId: number;
@@ -161,11 +161,23 @@ export async function POST(request: Request) {
   // и заказ, и резерв: без платежа заказ не имеет смысла оставлять висеть.
   try {
     const returnUrl = new URL(`/order/${order.id}`, request.url).toString();
+    const receipt = buildOrderReceipt({
+      customerEmail: payload.email,
+      customerPhone: payload.phone,
+      items: payload.items.map((item) => ({
+        name: productById.get(item.productId)!.name,
+        price: Number(productById.get(item.productId)!.price),
+        quantity: item.quantity,
+      })),
+      deliveryMethod: payload.deliveryMethod,
+      deliveryPrice,
+    });
     const payment = await createYookassaPayment({
       amount: total,
       orderId: order.id,
       returnUrl,
       description: `Заказ №${order.id}`,
+      receipt,
     });
 
     if (!payment.confirmation?.confirmation_url) {
