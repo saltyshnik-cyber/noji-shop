@@ -1,12 +1,12 @@
 import { Resend } from "resend";
 
-type OrderItemForEmail = {
+export type OrderItemForEmail = {
   name: string;
   quantity: number;
   price: number;
 };
 
-type OrderForEmail = {
+export type OrderForEmail = {
   id: number;
   customerName: string;
   phone: string;
@@ -19,7 +19,7 @@ type OrderForEmail = {
   items: OrderItemForEmail[];
 };
 
-export async function sendNewOrderEmail(order: OrderForEmail): Promise<void> {
+export async function sendPaidOrderEmail(order: OrderForEmail): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
   const adminEmail = process.env.ADMIN_EMAIL;
 
@@ -43,7 +43,7 @@ export async function sendNewOrderEmail(order: OrderForEmail): Promise<void> {
 
   const html = `
     <div style="font-family:sans-serif;max-width:480px;">
-      <h2>Новый заказ №${order.id}</h2>
+      <h2>Оплачен заказ №${order.id}</h2>
       <table style="width:100%;border-collapse:collapse;margin:12px 0;">
         <thead>
           <tr>
@@ -71,7 +71,7 @@ export async function sendNewOrderEmail(order: OrderForEmail): Promise<void> {
     await resend.emails.send({
       from: "Ножи для жизни <onboarding@resend.dev>",
       to: adminEmail,
-      subject: `Новый заказ №${order.id} — ${order.total.toLocaleString("ru-RU")} ₽`,
+      subject: `Оплачен заказ №${order.id} — ${order.total.toLocaleString("ru-RU")} ₽`,
       html,
     });
   } catch (error) {

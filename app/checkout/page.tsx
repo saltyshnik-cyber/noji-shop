@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
 import { isBlank, isValidEmail, isValidPhone } from "@/lib/validation";
@@ -34,7 +33,6 @@ function Spinner() {
 }
 
 export default function CheckoutPage() {
-  const router = useRouter();
   const { items, totalPrice, clear } = useCart();
 
   const [customerName, setCustomerName] = useState("");
@@ -59,6 +57,16 @@ export default function CheckoutPage() {
   const lastFetchedCity = useRef("");
 
   const deliveryBlockRef = useRef<HTMLDivElement>(null);
+  const phoneInputRef = useRef<HTMLInputElement>(null);
+
+  function handlePhoneFocus() {
+    if (phone !== "") return;
+    setPhone("+7");
+    // Курсор нужно проставить после того, как React применит новое value.
+    requestAnimationFrame(() => {
+      phoneInputRef.current?.setSelectionRange(2, 2);
+    });
+  }
 
   const [pvzList, setPvzList] = useState<CdekPvz[] | null>(null);
   const [selectedPvz, setSelectedPvz] = useState<CdekPvz | null>(null);
@@ -220,7 +228,9 @@ export default function CheckoutPage() {
         return;
       }
       clear();
-      router.push(`/order/${data.orderId}`);
+      // Внешний редирект на страницу оплаты ЮKassa — обычная навигация,
+      // а не router.push (тот предназначен только для внутренних маршрутов).
+      window.location.href = data.confirmationUrl;
     } catch {
       setSubmitError("Не удалось оформить заказ. Проверьте соединение и попробуйте ещё раз.");
     } finally {
@@ -274,9 +284,11 @@ export default function CheckoutPage() {
             </label>
             <input
               id="phone"
+              ref={phoneInputRef}
               placeholder="+79991234567"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              onFocus={handlePhoneFocus}
               className="w-full rounded border border-gray-300 px-3 py-2"
             />
             {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
@@ -321,6 +333,7 @@ export default function CheckoutPage() {
             {tariffError && <p className="mt-1 text-sm text-red-600">{tariffError}</p>}
           </div>
 
+          {!isBlank(city) && (
           <div
             ref={deliveryBlockRef}
             className={`rounded-lg border-2 p-4 transition ${
@@ -397,6 +410,7 @@ export default function CheckoutPage() {
             {noPvzMessage && <p className="mt-1 text-sm text-gray-500">{noPvzMessage}</p>}
             {errors.tariff && <p className="mt-1 text-sm text-red-600">{errors.tariff}</p>}
           </div>
+          )}
 
           {submitError && <p className="text-sm text-red-600">{submitError}</p>}
 

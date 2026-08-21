@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { ensureSchema, sql } from "@/lib/db";
 import { isBlank, isValidEmail, isValidPhone } from "@/lib/validation";
-import { sendNewOrderEmail } from "@/lib/email";
+import { restockItems } from "@/lib/orders";
+import { createYookassaPayment, YookassaApiError } from "@/lib/yookassa";
 
 type OrderItemInput = {
   productId: number;
@@ -96,13 +97,7 @@ export async function POST(request: Request) {
     `;
 
     if (!updated) {
-      for (const r of reserved) {
-        await sql`
-          UPDATE products
-          SET stock_quantity = stock_quantity + ${r.quantity}, in_stock = (stock_quantity + ${r.quantity}) > 0
-          WHERE id = ${r.productId}
-        `;
-      }
+      await restockItems(reserved);
 
       const [{ stock_quantity: available }] = await sql`
         SELECT stock_quantity FROM products WHERE id = ${item.productId}
@@ -136,12 +131,14 @@ export async function POST(request: Request) {
     [order] = (await sql`
       INSERT INTO orders (
         customer_name, phone, email, status, total,
-        delivery_city, delivery_method, delivery_price, delivery_pvz_address, delivery_pvz_code
+        delivery_city, delivery_method, delivery_price, delivery_pvz_address, delivery_pvz_code,
+        payment_status
       )
       VALUES (
         ${payload.customerName}, ${payload.phone}, ${payload.email ?? null}, 'новый', ${total},
         ${payload.city}, ${payload.deliveryMethod}, ${deliveryPrice},
-        ${payload.pvzAddress ?? ""}, ${payload.pvzCode ?? ""}
+        ${payload.pvzAddress ?? ""}, ${payload.pvzCode ?? ""},
+        'ожидает оплаты'
       )
       RETURNING id
     `) as { id: number }[];
@@ -154,33 +151,38 @@ export async function POST(request: Request) {
       `;
     }
   } catch (err) {
-    for (const r of reserved) {
-      await sql`
-        UPDATE products
-        SET stock_quantity = stock_quantity + ${r.quantity}, in_stock = (stock_quantity + ${r.quantity}) > 0
-        WHERE id = ${r.productId}
-      `;
-    }
+    await restockItems(reserved);
     console.error("Не удалось создать заказ после резервирования остатка:", err);
     return NextResponse.json({ error: "Не удалось оформить заказ, попробуйте ещё раз" }, { status: 500 });
   }
 
-  await sendNewOrderEmail({
-    id: order.id,
-    customerName: payload.customerName,
-    phone: payload.phone,
-    email: payload.email ?? null,
-    total,
-    deliveryCity: payload.city,
-    deliveryMethod: payload.deliveryMethod,
-    deliveryPrice,
-    deliveryPvzAddress: payload.pvzAddress ?? null,
-    items: payload.items.map((item) => ({
-      name: productById.get(item.productId)!.name,
-      quantity: item.quantity,
-      price: Number(productById.get(item.productId)!.price),
-    })),
-  });
+  // Заказ и его позиции уже в базе, остаток зарезервирован. Дальше пытаемся
+  // создать платёж в ЮKassa — если это не получится, полностью откатываем
+  // и заказ, и резерв: без платежа заказ не имеет смысла оставлять висеть.
+  try {
+    const returnUrl = new URL(`/order/${order.id}`, request.url).toString();
+    const payment = await createYookassaPayment({
+      amount: total,
+      orderId: order.id,
+      returnUrl,
+      description: `Заказ №${order.id}`,
+    });
 
-  return NextResponse.json({ orderId: order.id });
+    if (!payment.confirmation?.confirmation_url) {
+      throw new YookassaApiError("ЮKassa не вернула ссылку на оплату");
+    }
+
+    await sql`UPDATE orders SET yookassa_payment_id = ${payment.id} WHERE id = ${order.id}`;
+
+    return NextResponse.json({ orderId: order.id, confirmationUrl: payment.confirmation.confirmation_url });
+  } catch (err) {
+    await sql`DELETE FROM order_items WHERE order_id = ${order.id}`;
+    await sql`DELETE FROM orders WHERE id = ${order.id}`;
+    await restockItems(reserved);
+    console.error("Не удалось создать платёж ЮKassa:", err);
+    return NextResponse.json(
+      { error: "Не удалось создать платёж. Попробуйте оформить заказ ещё раз." },
+      { status: 502 },
+    );
+  }
 }

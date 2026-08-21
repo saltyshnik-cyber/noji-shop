@@ -133,7 +133,9 @@ export function ensureSchema(): Promise<void> {
           delivery_method TEXT NOT NULL DEFAULT '',
           delivery_price NUMERIC(10, 2) NOT NULL DEFAULT 0,
           delivery_pvz_address TEXT NOT NULL DEFAULT '',
-          delivery_pvz_code TEXT NOT NULL DEFAULT ''
+          delivery_pvz_code TEXT NOT NULL DEFAULT '',
+          payment_status TEXT NOT NULL DEFAULT 'ожидает оплаты',
+          yookassa_payment_id TEXT NOT NULL DEFAULT ''
         )
       `;
       await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_city TEXT NOT NULL DEFAULT ''`;
@@ -141,6 +143,8 @@ export function ensureSchema(): Promise<void> {
       await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_price NUMERIC(10, 2) NOT NULL DEFAULT 0`;
       await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_pvz_address TEXT NOT NULL DEFAULT ''`;
       await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_pvz_code TEXT NOT NULL DEFAULT ''`;
+      await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status TEXT NOT NULL DEFAULT 'ожидает оплаты'`;
+      await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS yookassa_payment_id TEXT NOT NULL DEFAULT ''`;
       await sql`
         CREATE TABLE IF NOT EXISTS order_items (
           id SERIAL PRIMARY KEY,

@@ -1,7 +1,8 @@
 import { ensureSchema, sql } from "@/lib/db";
 import AdminNav from "@/components/admin/AdminNav";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
-import type { OrderStatus } from "@/lib/orderLabels";
+import PaymentStatusBadge from "@/components/admin/PaymentStatusBadge";
+import type { OrderStatus, PaymentStatus } from "@/lib/orderLabels";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ type OrderRow = {
   delivery_method: string;
   delivery_price: string;
   delivery_pvz_address: string;
+  payment_status: PaymentStatus;
 };
 
 type OrderItemRow = {
@@ -32,7 +34,7 @@ async function getOrdersWithItems() {
   const orders = (await sql`
     SELECT
       id, customer_name, phone, email, status, created_at, total,
-      delivery_city, delivery_method, delivery_price, delivery_pvz_address
+      delivery_city, delivery_method, delivery_price, delivery_pvz_address, payment_status
     FROM orders
     ORDER BY created_at DESC
   `) as OrderRow[];
@@ -75,7 +77,10 @@ export default async function AdminOrdersPage() {
                     {new Date(order.created_at).toLocaleString("ru-RU")}
                   </div>
                 </div>
-                <OrderStatusSelect orderId={order.id} status={order.status} />
+                <div className="flex items-center gap-2">
+                  <PaymentStatusBadge status={order.payment_status} />
+                  <OrderStatusSelect orderId={order.id} status={order.status} />
+                </div>
               </div>
 
               <div className="mt-3 grid gap-1 text-sm text-gray-600 sm:grid-cols-2">
