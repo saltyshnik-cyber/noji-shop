@@ -8,7 +8,8 @@ export const dynamic = "force-dynamic";
 
 type OrderRow = {
   id: number;
-  customer_name: string;
+  first_name: string;
+  last_name: string;
   phone: string;
   email: string | null;
   status: OrderStatus;
@@ -33,7 +34,7 @@ async function getOrdersWithItems() {
 
   const orders = (await sql`
     SELECT
-      id, customer_name, phone, email, status, created_at, total,
+      id, first_name, last_name, phone, email, status, created_at, total,
       delivery_city, delivery_method, delivery_price, delivery_pvz_address, payment_status
     FROM orders
     ORDER BY created_at DESC
@@ -85,7 +86,7 @@ export default async function AdminOrdersPage() {
 
               <div className="mt-3 grid gap-1 text-sm text-gray-600 sm:grid-cols-2">
                 <div>
-                  {order.customer_name} · {order.phone}
+                  {order.first_name} {order.last_name} · {order.phone}
                 </div>
                 {order.email && <div>{order.email}</div>}
                 {order.delivery_city && <div>Город: {order.delivery_city}</div>}

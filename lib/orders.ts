@@ -23,7 +23,8 @@ export async function getOrderForEmail(orderId: number): Promise<OrderForEmail |
   const orders = (await sql`SELECT * FROM orders WHERE id = ${orderId}`) as
     | {
         id: number;
-        customer_name: string;
+        first_name: string;
+        last_name: string;
         phone: string;
         email: string | null;
         total: string;
@@ -45,7 +46,8 @@ export async function getOrderForEmail(orderId: number): Promise<OrderForEmail |
 
   return {
     id: order.id,
-    customerName: order.customer_name,
+    firstName: order.first_name,
+    lastName: order.last_name,
     phone: order.phone,
     email: order.email,
     total: Number(order.total),

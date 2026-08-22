@@ -8,7 +8,8 @@ export type OrderItemForEmail = {
 
 export type OrderForEmail = {
   id: number;
-  customerName: string;
+  firstName: string;
+  lastName: string;
   phone: string;
   email: string | null;
   total: number;
@@ -58,7 +59,7 @@ export async function sendPaidOrderEmail(order: OrderForEmail): Promise<void> {
       <p style="font-weight:bold;font-size:16px;">Итого: ${order.total.toLocaleString("ru-RU")} ₽</p>
       <h3>Клиент</h3>
       <p>
-        Имя: ${order.customerName}<br/>
+        Имя: ${order.firstName} ${order.lastName}<br/>
         Телефон: ${order.phone}<br/>
         ${order.email ? `Email: ${order.email}<br/>` : ""}
         Город доставки: ${order.deliveryCity}<br/>

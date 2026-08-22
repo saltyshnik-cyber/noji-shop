@@ -8,7 +8,8 @@ export const dynamic = "force-dynamic";
 
 type OrderRow = {
   id: number;
-  customer_name: string;
+  first_name: string;
+  last_name: string;
   phone: string;
   email: string | null;
   status: string;
@@ -87,7 +88,9 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         <dl className="mb-6 space-y-1 text-sm text-gray-600">
           <div>
             <dt className="inline font-medium">Имя: </dt>
-            <dd className="inline">{order.customer_name}</dd>
+            <dd className="inline">
+              {order.first_name} {order.last_name}
+            </dd>
           </div>
           <div>
             <dt className="inline font-medium">Телефон: </dt>

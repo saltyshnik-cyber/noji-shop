@@ -85,6 +85,27 @@ async function migrateProductStockDefaults(): Promise<void> {
   await sql`UPDATE products SET stock_quantity = 1 WHERE stock_quantity = 0 AND in_stock = TRUE`;
 }
 
+// Одноразовый бэкфилл first_name/last_name для заказов, оформленных до
+// разделения поля "Имя" на имя и фамилию (нужно для накладных СДЭК).
+// customer_name остаётся в таблице для обратной совместимости и продолжает
+// заполняться при вставке, но для отображения везде используются уже
+// first_name/last_name. Разбиваем по первому пробелу — это best-effort для
+// старых записей, где имя и фамилия были одной строкой; если пробела нет,
+// всё уходит в first_name. Идемпотентно: как только first_name у заказа
+// становится непустым, WHERE first_name = '' для него больше не совпадает.
+async function migrateOrderNameSplit(): Promise<void> {
+  const rows = (await sql`
+    SELECT id, customer_name FROM orders WHERE first_name = '' AND last_name = '' AND customer_name != ''
+  `) as { id: number; customer_name: string }[];
+  for (const row of rows) {
+    const trimmed = row.customer_name.trim();
+    const spaceIdx = trimmed.indexOf(" ");
+    const firstName = spaceIdx === -1 ? trimmed : trimmed.slice(0, spaceIdx);
+    const lastName = spaceIdx === -1 ? "" : trimmed.slice(spaceIdx + 1).trim();
+    await sql`UPDATE orders SET first_name = ${firstName}, last_name = ${lastName} WHERE id = ${row.id}`;
+  }
+}
+
 let schemaReady: Promise<void> | null = null;
 
 export function ensureSchema(): Promise<void> {
@@ -135,7 +156,9 @@ export function ensureSchema(): Promise<void> {
           delivery_pvz_address TEXT NOT NULL DEFAULT '',
           delivery_pvz_code TEXT NOT NULL DEFAULT '',
           payment_status TEXT NOT NULL DEFAULT 'ожидает оплаты',
-          yookassa_payment_id TEXT NOT NULL DEFAULT ''
+          yookassa_payment_id TEXT NOT NULL DEFAULT '',
+          first_name TEXT NOT NULL DEFAULT '',
+          last_name TEXT NOT NULL DEFAULT ''
         )
       `;
       await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_city TEXT NOT NULL DEFAULT ''`;
@@ -145,6 +168,9 @@ export function ensureSchema(): Promise<void> {
       await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_pvz_code TEXT NOT NULL DEFAULT ''`;
       await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status TEXT NOT NULL DEFAULT 'ожидает оплаты'`;
       await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS yookassa_payment_id TEXT NOT NULL DEFAULT ''`;
+      await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS first_name TEXT NOT NULL DEFAULT ''`;
+      await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS last_name TEXT NOT NULL DEFAULT ''`;
+      await migrateOrderNameSplit();
       await sql`
         CREATE TABLE IF NOT EXISTS order_items (
           id SERIAL PRIMARY KEY,

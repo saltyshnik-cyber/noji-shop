@@ -10,7 +10,8 @@ type OrderItemInput = {
 };
 
 type OrderPayload = {
-  customerName: string;
+  firstName: string;
+  lastName: string;
   phone: string;
   email?: string;
   items: OrderItemInput[];
@@ -25,8 +26,12 @@ type OrderPayload = {
 export async function POST(request: Request) {
   const payload = (await request.json()) as OrderPayload;
 
-  if (isBlank(payload.customerName)) {
+  if (isBlank(payload.firstName)) {
     return NextResponse.json({ error: "Введите имя" }, { status: 400 });
+  }
+
+  if (isBlank(payload.lastName)) {
+    return NextResponse.json({ error: "Введите фамилию" }, { status: 400 });
   }
 
   if (isBlank(payload.phone) || !isValidPhone(payload.phone)) {
@@ -128,14 +133,19 @@ export async function POST(request: Request) {
   // ни его позиции, чтобы не "терять" товар со склада без реального заказа.
   let order: { id: number };
   try {
+    // customer_name сохраняется и дальше — только ради обратной совместимости
+    // со старыми записями/отчётами, которые могли бы на него полагаться.
+    // Для отображения везде используются first_name/last_name.
+    const customerName = `${payload.firstName.trim()} ${payload.lastName.trim()}`.trim();
     [order] = (await sql`
       INSERT INTO orders (
-        customer_name, phone, email, status, total,
+        customer_name, first_name, last_name, phone, email, status, total,
         delivery_city, delivery_method, delivery_price, delivery_pvz_address, delivery_pvz_code,
         payment_status
       )
       VALUES (
-        ${payload.customerName}, ${payload.phone}, ${payload.email ?? null}, 'новый', ${total},
+        ${customerName}, ${payload.firstName.trim()}, ${payload.lastName.trim()},
+        ${payload.phone}, ${payload.email ?? null}, 'новый', ${total},
         ${payload.city}, ${payload.deliveryMethod}, ${deliveryPrice},
         ${payload.pvzAddress ?? ""}, ${payload.pvzCode ?? ""},
         'ожидает оплаты'

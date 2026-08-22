@@ -35,12 +35,14 @@ function Spinner() {
 export default function CheckoutPage() {
   const { items, totalPrice, clear } = useCart();
 
-  const [customerName, setCustomerName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [city, setCity] = useState("");
   const [errors, setErrors] = useState<{
-    customerName?: string;
+    firstName?: string;
+    lastName?: string;
     phone?: string;
     email?: string;
     city?: string;
@@ -176,7 +178,8 @@ export default function CheckoutPage() {
 
   function validate(): typeof errors {
     const next: typeof errors = {};
-    if (isBlank(customerName)) next.customerName = "Введите имя";
+    if (isBlank(firstName)) next.firstName = "Введите имя";
+    if (isBlank(lastName)) next.lastName = "Введите фамилию";
     if (!isValidPhone(phone)) next.phone = "Формат: +7XXXXXXXXXX";
     if (email && !isValidEmail(email)) next.email = "Некорректный email";
     if (isBlank(city)) {
@@ -210,7 +213,8 @@ export default function CheckoutPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          customerName,
+          firstName,
+          lastName,
           phone,
           email: email || undefined,
           items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
@@ -265,17 +269,32 @@ export default function CheckoutPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-          <div>
-            <label className="mb-1 block text-sm font-medium" htmlFor="customerName">
-              Имя
-            </label>
-            <input
-              id="customerName"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              className="w-full rounded border border-gray-300 px-3 py-2"
-            />
-            {errors.customerName && <p className="mt-1 text-sm text-red-600">{errors.customerName}</p>}
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <div className="flex-1">
+              <label className="mb-1 block text-sm font-medium" htmlFor="firstName">
+                Имя
+              </label>
+              <input
+                id="firstName"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="w-full rounded border border-gray-300 px-3 py-2"
+              />
+              {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
+            </div>
+
+            <div className="flex-1">
+              <label className="mb-1 block text-sm font-medium" htmlFor="lastName">
+                Фамилия
+              </label>
+              <input
+                id="lastName"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="w-full rounded border border-gray-300 px-3 py-2"
+              />
+              {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
+            </div>
           </div>
 
           <div>
