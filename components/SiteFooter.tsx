@@ -25,18 +25,27 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-neutral-800 bg-neutral-950 text-slate-400">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 text-sm sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex flex-col gap-1">
-          <span className="font-semibold text-slate-200">{shopName}</span>
-          {contactPhone && (
-            <a href={phoneToTelHref(contactPhone)} className="hover:text-white hover:underline">
-              {contactPhone}
-            </a>
-          )}
-          {contactEmail && (
-            <a href={`mailto:${contactEmail}`} className="hover:text-white hover:underline">
-              {contactEmail}
-            </a>
-          )}
+        <div className="flex flex-col gap-2">
+          <img
+            src="/strizhov-logo-white.png"
+            alt="Мастерская Стрижова А.С."
+            width={140}
+            height={80}
+            className="h-9 w-auto self-start sm:h-12"
+          />
+          <div className="flex flex-col gap-1">
+            <span className="font-semibold text-slate-200">{shopName}</span>
+            {contactPhone && (
+              <a href={phoneToTelHref(contactPhone)} className="hover:text-white hover:underline">
+                {contactPhone}
+              </a>
+            )}
+            {contactEmail && (
+              <a href={`mailto:${contactEmail}`} className="hover:text-white hover:underline">
+                {contactEmail}
+              </a>
+            )}
+          </div>
         </div>
 
         <nav className="flex flex-col gap-1 sm:items-end">
