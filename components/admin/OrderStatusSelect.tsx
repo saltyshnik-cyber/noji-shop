@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ORDER_STATUSES, type OrderStatus } from "@/lib/orderLabels";
+import { ORDER_STATUSES, ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/orderLabels";
 
 export default function OrderStatusSelect({
   orderId,
@@ -37,7 +37,7 @@ export default function OrderStatusSelect({
     >
       {ORDER_STATUSES.map((s) => (
         <option key={s} value={s}>
-          {s}
+          {ORDER_STATUS_LABELS[s]}
         </option>
       ))}
     </select>

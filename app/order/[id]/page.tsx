@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ensureSchema, sql } from "@/lib/db";
 import { OrderPaymentStatus } from "@/components/OrderPaymentStatus";
-import type { PaymentStatus } from "@/lib/orderLabels";
+import { ORDER_STATUS_LABELS, type OrderStatus, type PaymentStatus } from "@/lib/orderLabels";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +12,7 @@ type OrderRow = {
   last_name: string;
   phone: string;
   email: string | null;
-  status: string;
+  status: OrderStatus;
   created_at: string;
   total: string;
   delivery_city: string;
@@ -60,7 +60,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
     <main className="min-w-0">
       <div className="mx-auto max-w-xl px-4 py-10">
         <h1 className="mb-2 text-2xl font-bold">Заказ №{order.id} принят</h1>
-        <p className="mb-4 text-gray-500">Статус: {order.status}</p>
+        <p className="mb-4 text-gray-500">Статус: {ORDER_STATUS_LABELS[order.status] ?? order.status}</p>
 
         <OrderPaymentStatus orderId={order.id} initialStatus={order.payment_status} />
 
