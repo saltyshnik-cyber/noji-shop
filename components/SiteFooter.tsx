@@ -24,7 +24,31 @@ export function SiteFooter() {
 
   return (
     <footer className="border-t border-neutral-800 bg-neutral-950 text-slate-400">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 text-sm sm:flex-row sm:items-start sm:justify-between">
+      <div className="mx-auto max-w-6xl px-4 pt-8">
+        <div className="flex justify-center sm:justify-start">
+          <Link
+            href="/track"
+            className="inline-flex items-center gap-2 rounded-lg border-2 border-red-800 bg-red-950/30 px-6 py-3 text-base font-semibold text-white transition hover:border-red-600 hover:bg-red-900/40"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-5 w-5 shrink-0"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            Отследить заказ
+          </Link>
+        </div>
+      </div>
+
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 pb-8 pt-6 text-sm sm:flex-row sm:items-start sm:justify-between">
         <div className="flex flex-col gap-2">
           <img
             src="/strizhov-logo-white.png"
@@ -49,9 +73,6 @@ export function SiteFooter() {
         </div>
 
         <nav className="flex flex-col gap-1 sm:items-end">
-          <Link href="/track" className="hover:text-white hover:underline">
-            Отследить заказ
-          </Link>
           <Link href="/oferta" className="hover:text-white hover:underline">
             Публичная оферта
           </Link>
