@@ -59,9 +59,9 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   return (
     <main className="min-w-0">
       <div className="mx-auto max-w-xl px-4 py-10">
-        <p className="mb-1 text-sm font-medium uppercase tracking-wide text-gray-500">Заказ оформлен</p>
+        <p className="mb-1 text-sm font-medium uppercase tracking-wide text-slate-400">Заказ оформлен</p>
         <h1 className="mb-2 text-4xl font-black sm:text-5xl">№{order.id}</h1>
-        <p className="mb-4 text-gray-500">Статус: {ORDER_STATUS_LABELS[order.status] ?? order.status}</p>
+        <p className="mb-4 text-slate-400">Статус: {ORDER_STATUS_LABELS[order.status] ?? order.status}</p>
 
         <Link
           href={`/order/${order.id}`}
@@ -85,7 +85,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
 
         <OrderPaymentStatus orderId={order.id} initialStatus={order.payment_status} />
 
-        <div className="mb-6 rounded border border-gray-200 p-4">
+        <div className="mb-6 rounded border border-neutral-800 p-4">
           {items.map((item, i) => (
             <div key={i} className="flex justify-between py-1 text-sm">
               <span>
@@ -100,13 +100,13 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
               <span>{Number(order.delivery_price).toLocaleString("ru-RU")} ₽</span>
             </div>
           )}
-          <div className="mt-2 flex justify-between border-t border-gray-200 pt-2 font-bold">
+          <div className="mt-2 flex justify-between border-t border-neutral-800 pt-2 font-bold">
             <span>Итого</span>
             <span>{Number(order.total).toLocaleString("ru-RU")} ₽</span>
           </div>
         </div>
 
-        <dl className="mb-6 space-y-1 text-sm text-gray-600">
+        <dl className="mb-6 space-y-1 text-sm text-slate-300">
           <div>
             <dt className="inline font-medium">Имя: </dt>
             <dd className="inline">

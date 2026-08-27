@@ -37,7 +37,7 @@ export function OrderPaymentStatus({
 
   if (status === "оплачен") {
     return (
-      <div className="mb-6 rounded border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800">
+      <div className="mb-6 rounded border border-green-800 bg-green-950/30 px-4 py-3 text-sm text-green-300">
         ✓ Оплата подтверждена
       </div>
     );
@@ -45,14 +45,14 @@ export function OrderPaymentStatus({
 
   if (status === "отменён") {
     return (
-      <div className="mb-6 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
+      <div className="mb-6 rounded border border-red-800 bg-red-950/30 px-4 py-3 text-sm text-red-300">
         Оплата отменена. Если это ошибка — свяжитесь с нами.
       </div>
     );
   }
 
   return (
-    <div className="mb-6 rounded border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+    <div className="mb-6 rounded border border-amber-800 bg-amber-950/30 px-4 py-3 text-sm text-amber-300">
       Спасибо за заказ! Оплата обрабатывается — статус обновится автоматически через несколько секунд.
     </div>
   );
