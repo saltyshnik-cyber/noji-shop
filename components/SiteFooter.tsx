@@ -49,6 +49,9 @@ export function SiteFooter() {
         </div>
 
         <nav className="flex flex-col gap-1 sm:items-end">
+          <Link href="/track" className="hover:text-white hover:underline">
+            Отследить заказ
+          </Link>
           <Link href="/oferta" className="hover:text-white hover:underline">
             Публичная оферта
           </Link>
