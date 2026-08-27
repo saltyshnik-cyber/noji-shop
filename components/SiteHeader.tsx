@@ -36,43 +36,21 @@ export function SiteHeader() {
             {shopSubtitle}
           </span>
         </Link>
-        <div className="flex items-center gap-2">
-          <Link
-            href="/track"
-            className="flex items-center gap-1.5 rounded border border-slate-500 px-2.5 py-1.5 text-sm font-medium text-slate-200 transition hover:border-white hover:text-white sm:px-3"
+        {isHome ? (
+          <a
+            href="#contacts"
+            className="rounded border border-slate-500 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-white hover:text-white"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-4 w-4 shrink-0"
-            >
-              <circle cx="11" cy="11" r="7" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <span className="hidden sm:inline">Отследить заказ</span>
+            Контакты
+          </a>
+        ) : (
+          <Link
+            href="/cart"
+            className="rounded border border-slate-500 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-white hover:text-white"
+          >
+            Корзина{totalCount > 0 ? ` (${totalCount})` : ""}
           </Link>
-
-          {isHome ? (
-            <a
-              href="#contacts"
-              className="rounded border border-slate-500 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-white hover:text-white"
-            >
-              Контакты
-            </a>
-          ) : (
-            <Link
-              href="/cart"
-              className="rounded border border-slate-500 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-white hover:text-white"
-            >
-              Корзина{totalCount > 0 ? ` (${totalCount})` : ""}
-            </Link>
-          )}
-        </div>
+        )}
       </div>
     </header>
   );
