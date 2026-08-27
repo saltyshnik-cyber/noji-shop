@@ -59,8 +59,29 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   return (
     <main className="min-w-0">
       <div className="mx-auto max-w-xl px-4 py-10">
-        <h1 className="mb-2 text-2xl font-bold">Заказ №{order.id} принят</h1>
+        <p className="mb-1 text-sm font-medium uppercase tracking-wide text-gray-500">Заказ оформлен</p>
+        <h1 className="mb-2 text-4xl font-black sm:text-5xl">№{order.id}</h1>
         <p className="mb-4 text-gray-500">Статус: {ORDER_STATUS_LABELS[order.status] ?? order.status}</p>
+
+        <Link
+          href={`/order/${order.id}`}
+          className="mb-6 inline-flex items-center gap-2 rounded-lg border-2 border-red-800 bg-red-950/30 px-5 py-2.5 text-sm font-semibold text-white transition hover:border-red-600 hover:bg-red-900/40"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-4 w-4 shrink-0"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          Отследить заказ
+        </Link>
 
         <OrderPaymentStatus orderId={order.id} initialStatus={order.payment_status} />
 
