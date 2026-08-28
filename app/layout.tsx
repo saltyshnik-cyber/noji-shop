@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart-context";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <div className="flex flex-1 flex-col">{children}</div>
         </CartProvider>
         <SiteFooter />
+        <Script src="//code.jivo.ru/widget/Bt5MdidwSy" strategy="afterInteractive" />
       </body>
     </html>
   );
