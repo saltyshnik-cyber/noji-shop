@@ -21,6 +21,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Ножи для жизни — кованые ножи ручной работы",
   description: "Кованые ножи ручной работы: охотничьи, туристические, кухонные, финки НКВД.",
+  verification: {
+    other: {
+      "yandex-verification": "8acfbff9c694655b",
+    },
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
