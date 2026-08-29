@@ -1,5 +1,4 @@
-// TODO: заменить на кастомный домен, если/когда он появится у магазина.
-export const SITE_URL = "https://knife-shop-five.vercel.app";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://knife-shop-five.vercel.app";
 
 export function truncateForMeta(text: string, maxLength = 160): string {
   const clean = text.trim().replace(/\s+/g, " ");
