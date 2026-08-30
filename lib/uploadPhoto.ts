@@ -1,14 +1,14 @@
-import { put } from "@vercel/blob/client";
-
 const MAX_DIMENSION = 1800;
 const COMPRESS_QUALITY = 0.78;
 const SKIP_COMPRESSION_UNDER_BYTES = 300 * 1024; // уже компактный файл — не трогаем
 
 /**
  * Сжимает фото в браузере перед загрузкой: уменьшает до разумного разрешения
- * и перекодирует в JPEG. Телефонные фото (6-7 МБ) после этого обычно
- * укладываются в 200-500 КБ — это резко снижает расход общего лимита Blob
- * Data Transfer на аккаунте (его делят все проекты, не только этот).
+ * и перекодирует в JPEG. Оставлено и при переходе на Cloudinary: меньше байт
+ * летит по сети на телефонных тарифах, и меньше расходуется бесплатный лимит
+ * Cloudinary (25 credits/мес считают в том числе исходящий трафик и объём
+ * хранилища) — трансформации Cloudinary (f_auto,q_auto) сжимают дополнительно
+ * уже при отдаче, а не заменяют сжатие при загрузке.
  *
  * Видео не трогаем — сжимаем только image/*. Анимированные GIF тоже не
  * трогаем: canvas умеет рисовать только первый кадр, пережатие убило бы
@@ -52,13 +52,58 @@ async function compressImage(file: File): Promise<File> {
   }
 }
 
+function resourceTypeFor(file: File): "image" | "video" {
+  return file.type.startsWith("video/") ? "video" : "image";
+}
+
+type CloudinarySignature = {
+  timestamp: number;
+  signature: string;
+  apiKey: string;
+  cloudName: string;
+};
+
+async function getUploadSignature(): Promise<CloudinarySignature> {
+  let res: Response;
+  try {
+    res = await fetch("/api/admin/upload", { method: "POST" });
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err);
+    throw new Error(`Нет соединения с сервером (${detail}). Проверьте интернет и повторите попытку.`);
+  }
+
+  if (!res.ok) {
+    let detail = "";
+    try {
+      const json = await res.json();
+      detail = typeof json?.error === "string" ? json.error : "";
+    } catch {
+      try {
+        detail = await res.text();
+      } catch {
+        detail = "";
+      }
+    }
+    throw new Error(`Сервер отклонил запрос на загрузку, код ${res.status}${detail ? `: ${detail}` : ""}`);
+  }
+
+  try {
+    const json = await res.json();
+    if (!json?.signature || !json?.timestamp || !json?.apiKey || !json?.cloudName) throw new Error("empty");
+    return json;
+  } catch {
+    throw new Error("Сервер вернул некорректный ответ при подготовке загрузки.");
+  }
+}
+
 /**
- * Uploads a file straight from the browser to Vercel Blob storage.
+ * Uploads a file straight from the browser to Cloudinary.
  *
- * Only a small JSON "give me a token" request goes through our serverless
+ * Only a small "give me a signature" request goes through our serverless
  * function (`/api/admin/upload`) — the actual file bytes go directly to
- * Blob storage. This avoids Vercel's hard 4.5 MB request-body limit on
- * serverless functions, which real phone photos can easily exceed.
+ * Cloudinary. This avoids Vercel's hard 4.5 MB request-body limit on
+ * serverless functions, which real phone photos and video files can easily
+ * exceed.
  *
  * Errors are surfaced with as much real detail as possible (HTTP status,
  * server error text) instead of a generic "check your connection" message,
@@ -68,54 +113,36 @@ async function compressImage(file: File): Promise<File> {
 export async function uploadPhoto(file: File): Promise<string> {
   file = await compressImage(file);
 
-  let tokenRes: Response;
+  const { timestamp, signature, apiKey, cloudName } = await getUploadSignature();
+  const resourceType = resourceTypeFor(file);
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("api_key", apiKey);
+  formData.append("timestamp", String(timestamp));
+  formData.append("signature", signature);
+
+  let uploadRes: Response;
   try {
-    tokenRes = await fetch("/api/admin/upload", {
+    uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        type: "blob.generate-client-token",
-        payload: { pathname: file.name, clientPayload: null, multipart: false },
-      }),
+      body: formData,
     });
   } catch (err) {
     const detail = err instanceof Error ? err.message : String(err);
-    throw new Error(`Нет соединения с сервером (${detail}). Проверьте интернет и повторите попытку.`);
+    throw new Error(`Не удалось соединиться с Cloudinary (${detail}). Проверьте интернет и повторите попытку.`);
   }
 
-  if (!tokenRes.ok) {
-    let detail = "";
-    try {
-      const json = await tokenRes.json();
-      detail = typeof json?.error === "string" ? json.error : "";
-    } catch {
-      try {
-        detail = await tokenRes.text();
-      } catch {
-        detail = "";
-      }
-    }
-    throw new Error(`Сервер отклонил запрос на загрузку, код ${tokenRes.status}${detail ? `: ${detail}` : ""}`);
+  const json = await uploadRes.json().catch(() => null);
+
+  if (!uploadRes.ok) {
+    const detail = json?.error?.message ?? `код ${uploadRes.status}`;
+    throw new Error(`Cloudinary отклонил загрузку: ${detail}`);
   }
 
-  let clientToken: string;
-  try {
-    const json = await tokenRes.json();
-    if (!json?.clientToken) throw new Error("empty");
-    clientToken = json.clientToken;
-  } catch {
-    throw new Error("Сервер вернул некорректный ответ при подготовке загрузки.");
+  if (!json?.secure_url) {
+    throw new Error("Cloudinary вернул некорректный ответ при загрузке файла.");
   }
 
-  try {
-    const blob = await put(file.name, file, {
-      access: "public",
-      token: clientToken,
-      contentType: file.type || "application/octet-stream",
-    });
-    return blob.url;
-  } catch (err) {
-    const detail = err instanceof Error ? err.message : String(err);
-    throw new Error(`Не удалось загрузить файл в хранилище: ${detail}`);
-  }
+  return json.secure_url as string;
 }

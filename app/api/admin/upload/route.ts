@@ -1,23 +1,34 @@
 import { NextResponse } from "next/server";
-import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
-import { ALLOWED_IMAGE_MIME_TYPES, ALLOWED_VIDEO_MIME_TYPES, MAX_MEDIA_BYTES } from "@/lib/mediaType";
+import { v2 as cloudinary } from "cloudinary";
 
-export async function POST(request: Request) {
-  const body = (await request.json()) as HandleUploadBody;
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-  try {
-    const jsonResponse = await handleUpload({
-      body,
-      request,
-      onBeforeGenerateToken: async () => ({
-        allowedContentTypes: [...ALLOWED_IMAGE_MIME_TYPES, ...ALLOWED_VIDEO_MIME_TYPES],
-        addRandomSuffix: true,
-        maximumSizeInBytes: MAX_MEDIA_BYTES,
-      }),
-    });
-    return NextResponse.json(jsonResponse);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Неизвестная ошибка загрузки";
-    return NextResponse.json({ error: message }, { status: 400 });
+/**
+ * Выдаёт подписанные параметры для прямой загрузки файла из браузера в
+ * Cloudinary — сами байты файла через наш сервер не идут. Это важно для
+ * видео: без прямой загрузки пришлось бы прогонять их через тело
+ * serverless-функции, у которого жёсткий лимит ~4.5 МБ (видео до 100 МБ его
+ * легко превышают).
+ *
+ * Маршрут уже защищён проверкой админ-сессии в proxy.ts
+ * (matcher включает /api/admin/:path*).
+ */
+export async function POST() {
+  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    return NextResponse.json({ error: "Cloudinary не настроен на сервере" }, { status: 500 });
   }
+
+  const timestamp = Math.round(Date.now() / 1000);
+  const signature = cloudinary.utils.api_sign_request({ timestamp }, process.env.CLOUDINARY_API_SECRET);
+
+  return NextResponse.json({
+    timestamp,
+    signature,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+  });
 }

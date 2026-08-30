@@ -8,11 +8,13 @@
     "start": "next start",
     "lint": "eslint",
     "db:seed": "node --env-file=.env.local scripts/seed.mjs",
-    "upload:photos": "node --env-file=.env.local scripts/upload-photos.mjs"
+    "upload:photos": "node --env-file=.env.local scripts/upload-photos.mjs",
+    "blob:compress": "node --env-file=.env.local scripts/compress-existing-blobs.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
     "@vercel/blob": "^2.8.0",
+    "cloudinary": "^2.11.0",
     "next": "16.3.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -25,6 +27,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.1",
+    "sharp": "^0.35.4",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
