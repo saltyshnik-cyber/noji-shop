@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "db:seed": "node --env-file=.env.local scripts/seed.mjs",
+    "db:migrate": "node --env-file=.env.local scripts/migrate.mjs",
     "upload:photos": "node --env-file=.env.local scripts/upload-photos.mjs",
     "blob:compress": "node --env-file=.env.local scripts/compress-existing-blobs.mjs"
   },

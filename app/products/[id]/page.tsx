@@ -2,13 +2,15 @@ import Link from "next/link";
 import { cache } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ensureSchema, sql } from "@/lib/db";
+import { sql } from "@/lib/db";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { ProductGallery } from "@/components/ProductGallery";
 import { getSiteSettings } from "@/lib/siteSettings";
 import { truncateForMeta } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+// Та же логика, что и в каталоге: минута устаревания остатка не критична,
+// финальная проверка — в корзине/на оформлении.
+export const revalidate = 60;
 
 type ProductRow = {
   id: number;
@@ -26,7 +28,6 @@ type ProductRow = {
 const getProduct = cache(async (id: string): Promise<ProductRow | null> => {
   if (!/^\d+$/.test(id)) return null;
 
-  await ensureSchema();
   const rows = await sql`
     SELECT
       products.id,

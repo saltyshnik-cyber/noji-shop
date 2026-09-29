@@ -1,4 +1,5 @@
-import { ensureSchema, sql } from "@/lib/db";
+import { cache } from "react";
+import { sql } from "@/lib/db";
 
 export type SiteSettings = {
   shopName: string;
@@ -61,8 +62,10 @@ const KEY_MAP: Record<keyof SiteSettings, string> = {
   galleryImages: "gallery_images",
 };
 
-export async function getSiteSettings(): Promise<SiteSettings> {
-  await ensureSchema();
+// cache() дедуплицирует вызовы в рамках одного рендера — generateMetadata()
+// и сам компонент страницы независимо вызывают эту функцию на нескольких
+// страницах; без cache() это было бы 2 похода в БД за одним и тем же запросом.
+export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
   const rows = (await sql`SELECT key, value FROM site_settings`) as { key: string; value: string }[];
   const byKey = new Map(rows.map((r) => [r.key, r.value]));
 
@@ -81,10 +84,9 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     }
   }
   return settings;
-}
+});
 
 export async function saveSiteSettings(partial: Partial<SiteSettings>): Promise<void> {
-  await ensureSchema();
   for (const field of Object.keys(partial) as (keyof SiteSettings)[]) {
     const key = KEY_MAP[field];
     const value = field === "galleryImages" ? JSON.stringify(partial.galleryImages) : String(partial[field]);

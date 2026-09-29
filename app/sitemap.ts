@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next";
-import { ensureSchema, sql } from "@/lib/db";
+import { sql } from "@/lib/db";
 import { SITE_URL } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+// Список товаров меняется редко, а sitemap регулярно дёргают поисковые боты —
+// час устаревания не имеет значения для SEO, зато убирает лишнюю нагрузку на БД.
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  await ensureSchema();
   const products = (await sql`SELECT id FROM products ORDER BY id`) as { id: number }[];
 
   const staticPages: MetadataRoute.Sitemap = [

@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import type { PaymentStatus } from "@/lib/orderLabels";
 
-const POLL_INTERVAL_MS = 3000;
-const MAX_POLLS = 20; // ~1 минута опроса, дальше просто оставляем текущий статус
+const POLL_INTERVAL_MS = 5000;
+const MAX_POLLS = 12; // ~1 минута опроса, дальше просто оставляем текущий статус
 
 export function OrderPaymentStatus({
   orderId,

@@ -1,10 +1,12 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ensureSchema, sql } from "@/lib/db";
+import { sql } from "@/lib/db";
 import { getSiteSettings, phoneToTelHref } from "@/lib/siteSettings";
 import { truncateForMeta } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+// Главная почти не меняется между заказами/правками в админке — раз в минуту
+// вполне достаточно свежести, зато не дёргаем БД на каждый заход.
+export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
@@ -39,7 +41,6 @@ type FeaturedProduct = {
 };
 
 async function getFeaturedProducts(): Promise<FeaturedProduct[]> {
-  await ensureSchema();
   const rows = (await sql`
     SELECT id, name, price, photo_url, steel, blade_length_mm, handle_material
     FROM products

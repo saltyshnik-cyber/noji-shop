@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ensureSchema, sql } from "@/lib/db";
+import { sql } from "@/lib/db";
 import { isBlank, isValidPhone, normalizePhone } from "@/lib/validation";
 
 const NOT_FOUND_MESSAGE = "Заказ не найден, проверьте номер и телефон";
@@ -14,8 +14,6 @@ export async function POST(request: Request) {
   if (isBlank(phone) || !isValidPhone(phone)) {
     return NextResponse.json({ error: "Введите телефон в формате +7XXXXXXXXXX" }, { status: 400 });
   }
-
-  await ensureSchema();
 
   const [order] = (await sql`
     SELECT id, phone FROM orders WHERE id = ${Number(orderId)}

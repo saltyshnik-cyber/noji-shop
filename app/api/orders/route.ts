@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ensureSchema, sql } from "@/lib/db";
+import { sql } from "@/lib/db";
 import { isBlank, isValidEmail, isValidPhone } from "@/lib/validation";
 import { restockItems } from "@/lib/orders";
 import { buildOrderReceipt, createYookassaPayment, YookassaApiError } from "@/lib/yookassa";
@@ -65,8 +65,6 @@ export async function POST(request: Request) {
   if (productIds.some((id) => !Number.isInteger(id))) {
     return NextResponse.json({ error: "Некорректный товар в корзине" }, { status: 400 });
   }
-
-  await ensureSchema();
 
   const products = await sql`
     SELECT id, name, price, stock_quantity FROM products WHERE id = ANY(${productIds})

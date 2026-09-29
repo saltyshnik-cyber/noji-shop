@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { ensureSchema, sql } from "@/lib/db";
+import { sql } from "@/lib/db";
 import AdminNav from "@/components/admin/AdminNav";
 import ProductForm from "@/components/admin/ProductForm";
 import { getCategories } from "@/lib/categories";
@@ -33,7 +33,6 @@ async function getProductImages(id: string) {
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  await ensureSchema();
 
   const [product, categories, images] = await Promise.all([getProduct(id), getCategories(), getProductImages(id)]);
 

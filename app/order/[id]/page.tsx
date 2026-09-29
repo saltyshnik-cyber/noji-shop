@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ensureSchema, sql } from "@/lib/db";
+import { sql } from "@/lib/db";
 import { OrderPaymentStatus } from "@/components/OrderPaymentStatus";
 import { ORDER_STATUS_LABELS, type OrderStatus, type PaymentStatus } from "@/lib/orderLabels";
 
@@ -31,7 +31,6 @@ type OrderItemRow = {
 async function getOrder(id: string) {
   if (!/^\d+$/.test(id)) return null;
 
-  await ensureSchema();
   const orders = await sql`SELECT * FROM orders WHERE id = ${id}`;
   const order = orders[0] as OrderRow | undefined;
   if (!order) return null;

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ensureSchema, sql } from "@/lib/db";
+import { sql } from "@/lib/db";
 
 // Публичный эндпоинт: отдаёт только текущий остаток по списку id товаров.
 // Используется корзиной, чтобы пересчитать лимиты количества, если остаток
@@ -20,7 +20,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ stock: {} });
   }
 
-  await ensureSchema();
   const rows = (await sql`
     SELECT id, stock_quantity FROM products WHERE id = ANY(${ids})
   `) as { id: number; stock_quantity: number }[];

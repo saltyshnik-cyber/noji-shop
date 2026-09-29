@@ -1,4 +1,4 @@
-import { ensureSchema, sql } from "@/lib/db";
+import { sql } from "@/lib/db";
 import AdminNav from "@/components/admin/AdminNav";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
 import PaymentStatusBadge from "@/components/admin/PaymentStatusBadge";
@@ -30,8 +30,6 @@ type OrderItemRow = {
 };
 
 async function getOrdersWithItems() {
-  await ensureSchema();
-
   const orders = (await sql`
     SELECT
       id, first_name, last_name, phone, email, status, created_at, total,

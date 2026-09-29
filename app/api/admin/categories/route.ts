@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ensureSchema, sql, slugify } from "@/lib/db";
+import { sql, slugify } from "@/lib/db";
 import { getCategoriesWithProductCounts } from "@/lib/categories";
 
 async function ensureUniqueSlug(baseSlug: string): Promise<string> {
@@ -24,8 +24,6 @@ export async function POST(request: Request) {
   if (!name || !name.trim()) {
     return NextResponse.json({ error: "Введите название категории" }, { status: 400 });
   }
-
-  await ensureSchema();
 
   const baseSlug = slugify(slug?.trim() || name);
   const uniqueSlug = await ensureUniqueSlug(baseSlug);

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ensureSchema, sql } from "@/lib/db";
+import { sql } from "@/lib/db";
 import AdminNav from "@/components/admin/AdminNav";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +14,6 @@ type ProductRow = {
 };
 
 async function getProducts(): Promise<ProductRow[]> {
-  await ensureSchema();
   return (await sql`
     SELECT
       products.id, products.name, products.price, products.photo_url,

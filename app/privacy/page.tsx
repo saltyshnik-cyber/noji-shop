@@ -2,7 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getSiteSettings, phoneToTelHref } from "@/lib/siteSettings";
 
-export const dynamic = "force-dynamic";
+// Текст меняется только вручную из админки — часовое устаревание не заметно.
+export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();

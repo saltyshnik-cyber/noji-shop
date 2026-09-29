@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ensureSchema, sql } from "@/lib/db";
+import { sql } from "@/lib/db";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -14,8 +14,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (type !== undefined && type !== "image" && type !== "video") {
     return NextResponse.json({ error: "type должен быть 'image' или 'video'" }, { status: 400 });
   }
-
-  await ensureSchema();
 
   const [{ next_order }] = await sql`
     SELECT COALESCE(MAX(sort_order), -1) + 1 AS next_order FROM product_images WHERE product_id = ${id}

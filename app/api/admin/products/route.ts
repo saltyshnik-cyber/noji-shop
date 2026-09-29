@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ensureSchema, sql } from "@/lib/db";
+import { sql } from "@/lib/db";
 import { isBlank } from "@/lib/validation";
 
 type ProductPayload = {
@@ -27,8 +27,6 @@ export async function POST(request: Request) {
   if (!Number.isInteger(stockQuantity) || stockQuantity < 0) {
     return NextResponse.json({ error: "Некорректное количество в наличии" }, { status: 400 });
   }
-
-  await ensureSchema();
 
   const [product] = await sql`
     INSERT INTO products

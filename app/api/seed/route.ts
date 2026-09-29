@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ensureSchema, sql } from "@/lib/db";
+import { sql } from "@/lib/db";
 import { categories, products } from "@/lib/seed-data";
 
 export async function POST(request: Request) {
@@ -7,8 +7,6 @@ export async function POST(request: Request) {
   if (!process.env.SEED_TOKEN || token !== process.env.SEED_TOKEN) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
-
-  await ensureSchema();
 
   await sql`DELETE FROM order_items`;
   await sql`DELETE FROM orders`;

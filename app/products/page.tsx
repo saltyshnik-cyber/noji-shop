@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ensureSchema, sql, slugify } from "@/lib/db";
+import { sql, slugify } from "@/lib/db";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { CategoryNav } from "@/components/CategoryNav";
 import { getCategories } from "@/lib/categories";
@@ -8,7 +8,9 @@ import { FloatingCartButton } from "@/components/FloatingCartButton";
 import { isVideoUrl } from "@/lib/mediaType";
 import { getSiteSettings } from "@/lib/siteSettings";
 
-export const dynamic = "force-dynamic";
+// Остатки меняются между заказами, но минута задержки в каталоге не критична —
+// финальная проверка остатка всё равно происходит в корзине/на оформлении.
+export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
@@ -35,7 +37,6 @@ type ProductRow = {
 };
 
 async function getProducts(): Promise<ProductRow[]> {
-  await ensureSchema();
   const rows = await sql`
     SELECT
       products.id,
