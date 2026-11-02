@@ -21,10 +21,23 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Ножи для жизни — кованые ножи ручной работы",
   description: "Кованые ножи ручной работы: охотничьи, туристические, кухонные, финки НКВД.",
+  // Название под иконкой на главном экране iPhone (iOS берёт его отсюда, а не
+  // из manifest). "default" вместо black-translucent — иначе в standalone-режиме
+  // шапка сайта оказалась бы под статус-баром/вырезом.
+  appleWebApp: {
+    capable: true,
+    title: "Ножи Стрижова",
+    statusBarStyle: "default",
+  },
   verification: {
     other: {
       "yandex-verification": "8acfbff9c694655b",
     },
+  },
+  other: {
+    // Next.js сам добавляет современный mobile-web-app-capable; старые версии
+    // iOS Safari понимают только этот, префиксный вариант — держим оба.
+    "apple-mobile-web-app-capable": "yes",
   },
 };
 
